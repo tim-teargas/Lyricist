@@ -54,19 +54,29 @@ namespace Lyricist.Core.Words
             return dictionary;
         }
 
-        /// <summary>Lower case, curly apostrophes straightened, surrounding punctuation removed.</summary>
+        /// <summary>
+        /// Lower case, curly apostrophes straightened. Apostrophes at the ends are kept: the
+        /// dictionary has words like "ol'", "lovin'" and "'cause" (Lookup also tries without them).
+        /// </summary>
         public static string Normalise (string word) =>
-            (word ?? "").Trim().Replace ('’', '\'').Replace ('‘', '\'').ToLowerInvariant().Trim ('\'', '-');
+            (word ?? "").Trim().Replace ('’', '\'').Replace ('‘', '\'').ToLowerInvariant().Trim ('-');
 
         /// <summary>The word's pronunciations (empty if unknown).</summary>
         public IReadOnlyList<Phone[]> Lookup (string word, Accent accent)
         {
             var map = accent == Accent.UK ? uk : us;
-            return map.TryGetValue (Normalise (word), out List<Phone[]> list) ? list : (IReadOnlyList<Phone[]>) Array.Empty<Phone[]>();
+            string key = Normalise (word);
+            if (map.TryGetValue (key, out List<Phone[]> list) || map.TryGetValue (key.Trim ('\''), out list))
+                return list;
+            return Array.Empty<Phone[]>();
         }
 
         /// <summary>In Britfone's list (the ~16,000 commonest words).</summary>
-        public bool IsCommon (string word) => common.Contains (Normalise (word));
+        public bool IsCommon (string word)
+        {
+            string key = Normalise (word);
+            return common.Contains (key) || common.Contains (key.Trim ('\''));
+        }
 
         public IEnumerable<KeyValuePair<string, List<Phone[]>>> Entries (Accent accent) => accent == Accent.UK ? uk : us;
 

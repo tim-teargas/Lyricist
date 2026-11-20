@@ -138,7 +138,9 @@ namespace Lyricist.Core.Words
         // ---------------------------------------------------------------------------------
 
         IEnumerable<RhymeMatch> Sorted (IEnumerable<string> words, int syllables) =>
-            words.Select (w => new RhymeMatch (w, Syllables (dictionary.Lookup (w, accent)[0]), dictionary.IsCommon (w)))
+            words.Select (w => (word: w, phones: dictionary.Lookup (w, accent)))
+                 .Where (x => x.phones.Count > 0)
+                 .Select (x => new RhymeMatch (x.word, Syllables (x.phones[0]), dictionary.IsCommon (x.word)))
                  .OrderBy (m => m.Common ? 0 : 1)
                  .ThenBy (m => Math.Abs (m.Syllables - syllables))
                  .ThenBy (m => m.Syllables)
