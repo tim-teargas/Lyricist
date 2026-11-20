@@ -15,6 +15,12 @@ namespace Lyricist.Core.Prompts
         public Lyric Focus { get; set; }
         /// <summary>Where the ideas came from, for the prompt: "filtered to Love + Time", "shuffled"...</summary>
         public string Description { get; set; } = "";
+        /// <summary>A song draft (its Ideas are the ideas it uses).</summary>
+        public Lyricist.Data.Song Song { get; set; }
+        /// <summary>The song's text with rhyme letters and syllable counts (SongAnalysis.Annotated).</summary>
+        public string SongAnnotated { get; set; } = "";
+        /// <summary>The song's sections and schemes, e.g. "Verse 1: ABAB · Chorus: AABB".</summary>
+        public string SongSchemes { get; set; } = "";
     }
 
     public sealed class PromptOptions
@@ -56,6 +62,15 @@ namespace Lyricist.Core.Prompts
     {
         public static readonly IReadOnlyList<PromptTemplate> Templates = new[]
         {
+            new PromptTemplate ("Song: feedback",
+                "What's working, which lines are weak (metre, forced rhymes, clichés), structure; a few alternatives, not a rewrite.",
+                c => c.Song != null, SongFeedback),
+            new PromptTemplate ("Song: fill the gaps",
+                "Options for the lines marked ??? (or ...), fitting the rhyme scheme and syllable counts around them.",
+                c => c.Song != null, SongGaps),
+            new PromptTemplate ("Song: where next?",
+                "Where the song could go next (verse, bridge, chorus changes) and which of its ideas fit where.",
+                c => c.Song != null, SongNext),
             new PromptTemplate ("Theme mining",
                 "Recurring images, tensions and points of view across the ideas, and songs they could become.",
                 c => c.Ideas.Count >= 2, ThemeMining),
@@ -172,6 +187,66 @@ namespace Lyricist.Core.Prompts
             text.AppendLine ("3. Suggest a new theme if several ideas share something my list doesn't cover.");
             JsonRequest (text, "suggestions",
                 "{\"themes\": [{\"idea\": 12, \"add\": [\"Time / The Past\"], \"remove\": []}], \"duplicates\": [[12, 40]], \"newThemes\": [\"...\"]}");
+            return text.ToString();
+        }
+
+        // ---------------------------------------------------------------------------------
+        // Songs
+
+        static StringBuilder SongIntro (PromptContext c, PromptOptions o)
+        {
+            var text = Start (o);
+            var song = c.Song;
+            text.AppendLine ($"Here's a song I'm writing: \"{(string.IsNullOrWhiteSpace (song.Title) ? "untitled" : song.Title.Trim())}\" ({song.Status}).");
+            if (o.IncludeNotes && !string.IsNullOrWhiteSpace (song.Notes))
+                text.AppendLine().AppendLine ($"My notes on it (may include ideas I haven't used yet): {Shorten (song.Notes, 1500)}");
+            text.AppendLine();
+            text.AppendLine ("Each line starts with its rhyme letter within its section (capital = perfect rhyme, small = near rhyme)");
+            text.AppendLine ("and its syllable count (? = estimated). Lines in [brackets] are section headers.");
+            if (!string.IsNullOrWhiteSpace (c.SongSchemes))
+                text.AppendLine ($"Rhyme schemes: {c.SongSchemes}");
+            text.AppendLine();
+            text.AppendLine ("```");
+            text.AppendLine (c.SongAnnotated);
+            text.AppendLine ("```");
+            text.AppendLine();
+            if (c.Ideas.Count > 0)
+            {
+                text.AppendLine ("Ideas from my collection I've gathered for it (not all used yet):");
+                text.AppendLine();
+                Ideas (text, c.Ideas, o);
+            }
+            return text;
+        }
+
+        static string SongFeedback (PromptContext c, PromptOptions o)
+        {
+            var text = SongIntro (c, o);
+            text.AppendLine ("Please tell me:");
+            text.AppendLine ("1. What's working, and what the song seems to be about to you.");
+            text.AppendLine ("2. The weakest lines and why: metre that doesn't match its partner lines (syllables / stress),");
+            text.AppendLine ("   rhymes that feel forced, clichés, lines that tell rather than show.");
+            text.AppendLine ("3. The structure: does the chorus land, does anything change from start to end?");
+            text.AppendLine ("4. For at most five lines, two or three alternatives each, in my voice. Don't rewrite the song.");
+            return text.ToString();
+        }
+
+        static string SongGaps (PromptContext c, PromptOptions o)
+        {
+            var text = SongIntro (c, o);
+            text.AppendLine ("The lines with ??? (or ...) are gaps I haven't written yet. For each gap, give me four or five");
+            text.AppendLine ("options that fit its section's rhyme scheme and roughly the syllable count of the lines around it,");
+            text.AppendLine ("in the voice of the rest. Make the options really different from each other. Mark stressed");
+            text.AppendLine ("syllables in CAPITALS. If there are no gaps, suggest where a line or two is missing.");
+            return text.ToString();
+        }
+
+        static string SongNext (PromptContext c, PromptOptions o)
+        {
+            var text = SongIntro (c, o);
+            text.AppendLine ("Where could this go next? Suggest two or three directions: another verse (what happens in it),");
+            text.AppendLine ("a bridge or middle eight (what changes), whether the chorus should shift on its last time.");
+            text.AppendLine ("Say which of my gathered ideas would fit where. Rough example lines are fine, but keep them short.");
             return text.ToString();
         }
 

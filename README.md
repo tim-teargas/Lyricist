@@ -16,6 +16,13 @@ DumbAngel prototype's SQL Server database, using XPO and DevExpress 21.2 WinForm
 
 Settings live in `%APPDATA%\Lyricist\settings.xml` (never in the repo).
 
+## Database scripts
+
+Lyricist never changes the database by itself. New tables come as scripts in `sql/`, run once by hand
+(e.g. in SQL Server Management Studio) against the DumbAngel database. Each is safe to run twice.
+
+- `sql/001-songs.sql` (v0.5.0): `Song` and `SongLyric`, for song drafts.
+
 ## Safety
 
 Lyricist never changes the database schema (XPO `AutoCreateOption.SchemaAlreadyExists`) and keeps the

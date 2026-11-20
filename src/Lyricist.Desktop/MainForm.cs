@@ -32,6 +32,8 @@ namespace Lyricist.Desktop
         readonly Dictionary<int, LyricEditForm> openForms =
             new Dictionary<int, LyricEditForm>();   // by Oid (saved lyrics)
         WordsForm words;
+        SongsForm songsWindow;
+        readonly Dictionary<Lyricist.Data.Song, SongEditForm> songForms = new Dictionary<Lyricist.Data.Song, SongEditForm>();
         WorkbenchForm workbench;
         FlagFilterControl filter;
 
@@ -259,6 +261,65 @@ namespace Lyricist.Desktop
             }
         }
 
+        public Session Session => session;
+
+        public void OpenSong (Lyricist.Data.Song song)
+        {
+            try
+            {
+                if (songForms.TryGetValue (song, out SongEditForm open) && !open.IsDisposed)
+                {
+                    if (open.WindowState == FormWindowState.Minimized)
+                        open.WindowState = FormWindowState.Normal;
+                    open.Activate();
+                    return;
+                }
+                if (!Session.IsNewObject (song))
+                    song.Reload();
+                var form = new SongEditForm (song, settings, this);
+                songForms[song] = form;
+                form.FormClosed += (s, e) => songForms.Remove (song);
+                int others = songForms.Count - 1;
+                form.Location = new System.Drawing.Point (Math.Max (0, Left + 60 + 30 * others), Math.Max (0, Top + 40 + 30 * others));
+                WindowMemory.Remember (form, "Song", new System.Drawing.Point (30 * others, 30 * others));
+                form.Show (this);
+            }
+            catch (Exception ex)
+            {
+                Ui.Error ("Problem opening the song.", ex);
+            }
+        }
+
+        void ShowSongs()
+        {
+            try
+            {
+                if (!Database.SongTablesExist (session))
+                {
+                    Ui.Info ("The song tables aren't in the database yet. Run sql\\001-songs.sql (in the Lyricist repo) "
+                           + "against the DumbAngel database, e.g. in SQL Server Management Studio, then try again.");
+                    return;
+                }
+                if (songsWindow == null || songsWindow.IsDisposed)
+                {
+                    songsWindow = new SongsForm (this);
+                    songsWindow.Show (this);
+                }
+                else
+                {
+                    if (songsWindow.WindowState == FormWindowState.Minimized)
+                        songsWindow.WindowState = FormWindowState.Normal;
+                    songsWindow.Activate();
+                }
+            }
+            catch (Exception ex)
+            {
+                Ui.Error ("Problem opening the songs.", ex);
+            }
+        }
+
+        void sbSongs_Click (object sender, EventArgs e) => ShowSongs();
+
         /// <summary>The ideas showing in the list now (after the checkboxes and the Find box).</summary>
         List<Lyric> VisibleLyrics()
         {
@@ -305,7 +366,31 @@ namespace Lyricist.Desktop
 
             e.Menu.Items.Add (new DXMenuItem ("Edit...", (s, a) => Edit (lyric)));
             e.Menu.Items.Add (new DXMenuItem ("Related ideas...", (s, a) => ShowRelated (lyric)));
+
+            // Add to song: any song window that's open, or a new song.
+            var addTo = new DXSubMenuItem ("Add to song");
+            foreach (SongEditForm songForm in songForms.Values.Where (f => !f.IsDisposed))
+            {
+                SongEditForm target = songForm;
+                string title = string.IsNullOrWhiteSpace (target.Song.Title) ? "(untitled)" : target.Song.Title;
+                addTo.Items.Add (new DXMenuItem (title, (s, a) => target.AddIdea (lyric)));
+            }
+            addTo.Items.Add (new DXMenuItem ("New song with this idea...", (s, a) => NewSongWith (lyric)) { BeginGroup = songForms.Count > 0 });
+            e.Menu.Items.Add (addTo);
             e.Menu.Items.Add (new DXMenuItem ("Delete...", (s, a) => Delete (lyric)) { BeginGroup = true });
+        }
+
+        void NewSongWith (Lyric lyric)
+        {
+            if (!Database.SongTablesExist (session))
+            {
+                ShowSongs();   // explains the SQL script
+                return;
+            }
+            var song = new Lyricist.Data.Song (session) { Title = "" };
+            OpenSong (song);
+            if (songForms.TryGetValue (song, out SongEditForm form))
+                form.AddIdea (lyric);
         }
 
         void Delete (Lyric lyric)

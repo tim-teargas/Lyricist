@@ -19,5 +19,11 @@ namespace Lyricist.Desktop
         void ShowRelated (Lyric lyric);
 
         void ShowPrompt (PromptContext context);
+
+        /// <summary>The main window's session (songs are edited in it).</summary>
+        DevExpress.Xpo.Session Session { get; }
+
+        /// <summary>Opens a song in its own window (or brings it forward).</summary>
+        void OpenSong (Lyricist.Data.Song song);
     }
 }

@@ -132,15 +132,33 @@ lyrics and vocals for DumbAngel, repo tim-teargas/DumbAngel).
   cascade for further ones, Words, Workbench, Prompt, Settings: position only) and the Workbench
   grids' column widths (kept across refreshes and sessions; best-fit only when none remembered).
   The main list keeps its grid-layout.xml.
+- **0.5.0 (20 Nov)**: song drafts. Tim chose a **SQL script he runs** for new tables:
+  `sql/001-songs.sql` (idempotent, one transaction): `Song` (OID, Title 200, Status 50, Body max,
+  Notes max, ProgRef 64, Rating -> Rating, IsActive, CreatedAt, UpdatedAt, OptimisticLockField,
+  GCRecord, ObjectType) and `SongLyric` (Song, Lyric, Position + XPObject columns), XPO-style indexes,
+  and the two XPObjectType rows (`Lyricist.Data.Song` / `.SongLyric`, assembly Lyricist.Core).
+  Classes in `Core/Data/Song.cs` (namespace **Lyricist.Data**; Song : NexusObject, Ideas = aggregated
+  association "Song-Ideas"). `Database.SongTablesExist` (the Songs button explains the script if not).
+  - `Core/Songs/SongAnalysis`: per line syllables / stress (Scansion), last word, rhyme letters
+    within each section ([Header] lines start one; with no headers, blank lines do): first earlier
+    line it rhymes with gives the letter (perfect = capital, near = small), else a new letter;
+    `Summary` "Verse 1: ABAB · Chorus: AABB"; `Annotated` text for prompts ("A    8 | line").
+  - Prompts: `PromptContext.Song / SongAnnotated / SongSchemes`; templates Song: feedback, Song:
+    fill the gaps (??? or ... lines), Song: where next?; song Notes go in as "my notes".
+  - Desktop: list Songs... -> `SongsForm` (New, Open, Delete; reloads on activation);
+    `SongEditForm` (Title, Status Idea / Drafting / Finished / Parked, free-text Body without
+    word wrap, Notes; right: line grid (Line, Rhyme, Syl, Ends, Stress; click = cursor to that
+    line), updated 0.5 s after typing; Ideas gathered (Insert at cursor on its own line, Remove,
+    double-click opens); Words..., Prompt..., Save, Close (asks to save changes)). Ideas are added
+    from the list's right-click **Add to song** (open song windows, or New song with this idea).
+    Everything is saved only on Save (new SongLyric rows, removed ones deleted).
 
 ## Plan (agreed 20 Nov)
 
 1. **Capture** (done, v0.1.0) and the **word panel** (v0.2.0, above).
 2. **Workbench window** (v0.3.0, above).
-3. **Song drafts** (NEXT; new tables): free text (Tim's wish, see 0.4.0), ideas pulled in by Oid,
-   rhyme-scheme letters and syllable / stress per line worked out automatically, a rhyme-scheme
-   reference (explain schemes and name songs that use them; never store other songs' lyrics),
-   Prompt with the draft and its ideas.
+3. **Song drafts** (v0.5.0). Still to do: a rhyme-scheme reference (explain schemes and name
+   songs that use them; never store other songs' lyrics); "Paste result" for prompt answers.
 4. **Prompts without the API** (v0.4.0, above; "Paste result" still to do). Tim doesn't want the
    API route.
 5. **DumbAngel link**: Lyricist reads DA's prog library (`Documents\DumbAngel2`, JSON) read only; a

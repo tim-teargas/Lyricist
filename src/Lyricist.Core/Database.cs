@@ -15,7 +15,25 @@ namespace Lyricist.Core
     /// </summary>
     public static class Database
     {
-        static readonly Type[] persistentTypes = { typeof (DumbAngel.Lyric), typeof (DumbAngel.Rating) };
+        static readonly Type[] persistentTypes =
+        {
+            typeof (DumbAngel.Lyric), typeof (DumbAngel.Rating),
+            typeof (Lyricist.Data.Song), typeof (Lyricist.Data.SongLyric),   // sql/001-songs.sql
+        };
+
+        /// <summary>True when sql/001-songs.sql has been run (the Song tables exist).</summary>
+        public static bool SongTablesExist (Session session)
+        {
+            try
+            {
+                session.Evaluate (typeof (Lyricist.Data.Song), CriteriaOperator.Parse ("Count()"), null);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
         /// <summary>Sets XpoDefault.DataLayer; sessions created with new Session() then use it.</summary>
         public static void Connect (string connectionString)
