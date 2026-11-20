@@ -180,7 +180,14 @@ lyrics and vocals for DumbAngel, repo tim-teargas/DumbAngel).
   fragments and reshuffle them) and his later Verbasizer program, which did it on screen. A
   Workbench tab could do the same with his ideas: split chosen ideas into phrases, shuffle and
   recombine, keep the good collisions (to a song or a new idea). Eno's Oblique Strategies cards are
-  a related prompt-for-the-stuck idea. Tim sent his first prompt on 20 Nov: "very interesting
+  a related prompt-for-the-stuck idea.
+- Other techniques offered to Tim (20 Nov) as possible Lyricist features: Tweedy's word columns
+  (nouns + an occupation's verbs, collide them); N+7 / Oulipo constraints (swap each noun for the
+  7th noun after it in the dictionary); erasure / blackout on a source text; exquisite corpse
+  (each line written seeing only the one before); object writing (Pattison: ten timed minutes on
+  one object, all the senses); vowel-first / dummy lyrics (sing nonsense, then find real words with
+  the same vowels and stresses: a natural fit for the word engine); title-first (Concept / Title
+  ideas); morning pages / free writing. Tim to pick which to explore. Tim sent his first prompt on 20 Nov: "very interesting
   results ... very fruitful".
 
 ## Parked: vocal ideas for DumbAngel's audio side (internal synth architecture)
