@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
 using DevExpress.XtraGrid.Views.Grid;
@@ -16,7 +17,7 @@ using Lyricist.Core.Words;
 namespace Lyricist.Desktop
 {
     /// <summary>
-    /// Exploring the collection: rhyme pairs (ready-made couplets), shuffle three (random
+    /// Exploring the collection: rhyme families (ready-made couplets), shuffle three (random
     /// collisions), the review queue (longest unreviewed first) and recurring words (optionally
     /// counting synonyms). The flag checkboxes at the top filter every tab (ticked = all must be set).
     /// Inactive ideas are left out. Double-click an idea anywhere to open it.
@@ -49,7 +50,7 @@ namespace Lyricist.Desktop
                 try { settings.Save(); } catch { }
                 ShowPairs();
             };
-            ceNear.CheckedChanged += (s, e) => ShowPairs();
+            ceNear.CheckedChanged += (s, e) => ShowFamilyLines();
             ceSynonyms.CheckedChanged += (s, e) => ShowWords();
             tpShuffle.Resize += (s, e) => LayOutShuffle();
             MarkAllStale (refresh: false);
@@ -133,26 +134,70 @@ namespace Lyricist.Desktop
         }
 
         // ---------------------------------------------------------------------------------
-        // Rhyme pairs
+        // Rhyme families (worked out in the background: the first time also loads the word data)
 
-        void ShowPairs() => Busy (() =>
-        {
-            Rhymer rhymer = WordData.RhymerFor (Accent);
-            List<RhymePair> pairs = RhymePairs.Find (Lyrics(), rhymer, ceNear.Checked);
-            var rows = pairs.Select (p => new PairRow (p)).ToList();
-            gcPairs.DataSource = rows;
-            ConfigureColumns (gvPairs);
-            lblPairs.Text = $"{rows.Count} pair{(rows.Count == 1 ? "" : "s")}{FilterNote}";
-        });
+        int pairsRun;
+        List<LineEnd> lineEnds = new List<LineEnd>();
 
-        void gvPairs_DoubleClick (object sender, EventArgs e)
+        async void ShowPairs()
         {
-            var view = (GridView) sender;
-            GridHitInfo hit = view.CalcHitInfo (view.GridControl.PointToClient (MousePosition));
-            if (!hit.InRow || !(view.GetRow (hit.RowHandle) is PairRow row))
-                return;
-            bool second = hit.Column != null && hit.Column.FieldName.EndsWith ("B");
-            openLyric (second ? row.Pair.B.Lyric : row.Pair.A.Lyric);
+            int run = ++pairsRun;
+            List<Lyric> lyrics = Lyrics();
+            Accent accent = Accent;
+            lblPairs.Text = "Working it out...";
+            try
+            {
+                var result = await Task.Run (() =>
+                {
+                    Rhymer rhymer = WordData.RhymerFor (accent);
+                    List<LineEnd> ends = RhymePairs.LineEnds (lyrics);
+                    return (ends, families: RhymePairs.Families (ends, rhymer));
+                });
+                if (run != pairsRun || IsDisposed)
+                    return;   // a newer request (filter / accent change) has taken over
+                lineEnds = result.ends;
+                gcPairs.DataSource = result.families.Select (f => new FamilyRow (f)).ToList();
+                ConfigureColumns (gvPairs);
+                lblPairs.Text = $"{result.families.Count} rhyme families from {lineEnds.Count} lines{FilterNote}";
+                ShowFamilyLines();
+            }
+            catch (Exception ex)
+            {
+                lblPairs.Text = "";
+                Ui.Error ("Problem working out the rhyme families.", ex);
+            }
+        }
+
+        void ShowFamilyLines()
+        {
+            lbFamilyLines.BeginUpdate();
+            try
+            {
+                lbFamilyLines.Items.Clear();
+                if (!(gvPairs.GetFocusedRow() is FamilyRow row))
+                    return;
+                foreach (LineEnd end in row.Family.Lines)
+                    lbFamilyLines.Items.Add (new LineItem (end, "Perfect"));
+                if (ceNear.Checked)
+                    foreach (LineEnd end in RhymePairs.NearLines (row.Family, lineEnds, WordData.RhymerFor (Accent)))
+                        lbFamilyLines.Items.Add (new LineItem (end, "Near"));
+            }
+            catch (Exception ex)
+            {
+                Ui.Error ("Problem listing the lines.", ex);
+            }
+            finally
+            {
+                lbFamilyLines.EndUpdate();
+            }
+        }
+
+        void gvPairs_FocusedRowChanged (object sender, DevExpress.XtraGrid.Views.Base.FocusedRowChangedEventArgs e) => ShowFamilyLines();
+
+        void lbFamilyLines_DoubleClick (object sender, EventArgs e)
+        {
+            if (lbFamilyLines.SelectedItem is LineItem item)
+                openLyric (item.End.Lyric);
         }
 
         // ---------------------------------------------------------------------------------
@@ -257,18 +302,34 @@ namespace Lyricist.Desktop
         // ---------------------------------------------------------------------------------
         // Recurring words
 
-        void ShowWords() => Busy (() =>
+        int wordsRun;
+
+        async void ShowWords()
         {
-            Thesaurus thesaurus = ceSynonyms.Checked ? WordData.Thesaurus : null;
-            List<WordCount> counts = RecurringWords.Count (Lyrics(), WordData.Dictionary, thesaurus);
-            gcWords.DataSource = counts.Select (c => new WordRow (c)).ToList();
-            ConfigureColumns (gvWords);
-            foreach (string field in new[] { nameof (WordRow.WithSynonyms), nameof (WordRow.Synonyms) })
-                if (gvWords.Columns[field] != null)
-                    gvWords.Columns[field].Visible = ceSynonyms.Checked;
-            lblWords.Text = $"{counts.Count} words used in 2 or more ideas{FilterNote}";
-            ShowWordIdeas();
-        });
+            int run = ++wordsRun;
+            List<Lyric> lyrics = Lyrics();
+            bool synonyms = ceSynonyms.Checked;
+            lblWords.Text = "Working it out...";
+            try
+            {
+                List<WordCount> counts = await Task.Run (() =>
+                    RecurringWords.Count (lyrics, WordData.Dictionary, synonyms ? WordData.Thesaurus : null));
+                if (run != wordsRun || IsDisposed)
+                    return;
+                gcWords.DataSource = counts.Select (c => new WordRow (c)).ToList();
+                ConfigureColumns (gvWords);
+                foreach (string field in new[] { nameof (WordRow.WithSynonyms), nameof (WordRow.Synonyms) })
+                    if (gvWords.Columns[field] != null)
+                        gvWords.Columns[field].Visible = synonyms;
+                lblWords.Text = $"{counts.Count} words used in 2 or more ideas{FilterNote}";
+                ShowWordIdeas();
+            }
+            catch (Exception ex)
+            {
+                lblWords.Text = "";
+                Ui.Error ("Problem counting the words.", ex);
+            }
+        }
 
         void gvWords_FocusedRowChanged (object sender, DevExpress.XtraGrid.Views.Base.FocusedRowChangedEventArgs e) => ShowWordIdeas();
 
@@ -307,21 +368,33 @@ namespace Lyricist.Desktop
                     column.DisplayFormat.FormatType = DevExpress.Utils.FormatType.DateTime;
                     column.DisplayFormat.FormatString = "yyyy-MM-dd HH:mm";
                 }
-                if (column.ColumnType == typeof (string) && column.FieldName.StartsWith ("Line"))
-                    column.ColumnEdit = new DevExpress.XtraEditors.Repository.RepositoryItemMemoEdit();
             }
+            view.BestFitMaxRowCount = 100;   // measuring every row of a big list is slow
             view.BestFitColumns();
         }
 
-        public sealed class PairRow
+        public sealed class FamilyRow
         {
-            internal PairRow (RhymePair pair) { Pair = pair; }
+            internal FamilyRow (RhymeFamily family) { Family = family; }
 
-            [Browsable (false)] public RhymePair Pair { get; }
-            [DisplayName ("Rhyme")] public string Kind => Pair.Kind == RhymeKind.Perfect ? "Perfect" : "Near";
-            [DisplayName ("Words")] public string Words => $"{Pair.A.LastWord} / {Pair.B.LastWord}";
-            [DisplayName ("First idea")] public string LineA => Pair.A.Line;
-            [DisplayName ("Second idea")] public string LineB => Pair.B.Line;
+            [Browsable (false)] public RhymeFamily Family { get; }
+            [DisplayName ("Sound")] public string Sound => "-" + Family.Key.Replace (" ", "");
+            [DisplayName ("Words")] public string Words => string.Join (", ", Family.Words);
+            [DisplayName ("Different words")] public int DifferentWords => Family.Words.Count;
+            [DisplayName ("Ideas")] public int Ideas => Family.Ideas;
+        }
+
+        sealed class LineItem
+        {
+            public LineItem (LineEnd end, string kind)
+            {
+                End = end;
+                Kind = kind;
+            }
+
+            public LineEnd End { get; }
+            public string Kind { get; }
+            public override string ToString() => $"{Kind}:  {End.Line}   [{End.LastWord}]   (#{End.Lyric.Oid})";
         }
 
         public sealed class ReviewRow

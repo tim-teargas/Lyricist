@@ -103,6 +103,10 @@ namespace Lyricist.Core.Words
             return result;
         }
 
+        /// <summary>The word's perfect-rhyme keys (one per pronunciation), e.g. "aɪ t" for night.</summary>
+        public IEnumerable<string> RhymeKeys (string word) =>
+            dictionary.Lookup (word, accent).Select (RhymeKey).Where (k => k != null).Distinct();
+
         /// <summary>The word's "same vowels" keys (one per pronunciation): words that can rhyme share one.</summary>
         public IEnumerable<string> VowelKeys (string word) =>
             dictionary.Lookup (word, accent).Select (VowelKey).Where (k => k != null).Distinct();

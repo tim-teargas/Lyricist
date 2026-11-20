@@ -39,6 +39,8 @@ namespace Lyricist.Desktop
             this.lblPairs = new DevExpress.XtraEditors.LabelControl();
             this.gcPairs = new DevExpress.XtraGrid.GridControl();
             this.gvPairs = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.lblFamilyLines = new DevExpress.XtraEditors.LabelControl();
+            this.lbFamilyLines = new DevExpress.XtraEditors.ListBoxControl();
             this.sbShuffle = new DevExpress.XtraEditors.SimpleButton();
             this.lblShuffle = new DevExpress.XtraEditors.LabelControl();
             this.ceLock1 = new DevExpress.XtraEditors.CheckEdit();
@@ -66,6 +68,7 @@ namespace Lyricist.Desktop
             ((System.ComponentModel.ISupportInitialize)(this.ceNear.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gcPairs)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvPairs)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lbFamilyLines)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ceLock1.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.meShuffle1.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ceLock2.Properties)).BeginInit();
@@ -112,7 +115,9 @@ namespace Lyricist.Desktop
             this.tpPairs.Controls.Add(this.ceNear);
             this.tpPairs.Controls.Add(this.lblPairs);
             this.tpPairs.Controls.Add(this.gcPairs);
-            this.tpPairs.Text = "Rhyme pairs";
+            this.tpPairs.Controls.Add(this.lblFamilyLines);
+            this.tpPairs.Controls.Add(this.lbFamilyLines);
+            this.tpPairs.Text = "Rhyme families";
             // 
             // tpShuffle
             // 
@@ -166,26 +171,26 @@ namespace Lyricist.Desktop
             // 
             this.ceNear.Location = new System.Drawing.Point(130, 9);
             this.ceNear.Name = "ceNear";
-            this.ceNear.Size = new System.Drawing.Size(170, 20);
+            this.ceNear.Size = new System.Drawing.Size(230, 20);
             this.ceNear.TabIndex = 3;
-            this.ceNear.Properties.Caption = "Include near rhymes";
+            this.ceNear.Properties.Caption = "Show near rhymes too";
             // 
             // lblPairs
             // 
-            this.lblPairs.Location = new System.Drawing.Point(310, 11);
+            this.lblPairs.Location = new System.Drawing.Point(370, 11);
             this.lblPairs.Name = "lblPairs";
             this.lblPairs.TabIndex = 4;
             this.lblPairs.Text = "";
             // 
             // gcPairs
             // 
-            this.gcPairs.Anchor = (System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right);
+            this.gcPairs.Anchor = (System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right);
             this.gcPairs.Location = new System.Drawing.Point(6, 40);
             this.gcPairs.Name = "gcPairs";
             this.gcPairs.MainView = this.gvPairs;
             this.gcPairs.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvPairs});
-            this.gcPairs.Size = new System.Drawing.Size(958, 520);
+            this.gcPairs.Size = new System.Drawing.Size(958, 300);
             this.gcPairs.TabIndex = 5;
             // 
             // gvPairs
@@ -197,14 +202,30 @@ namespace Lyricist.Desktop
             this.gvPairs.OptionsSelection.EnableAppearanceFocusedCell = false;
             this.gvPairs.OptionsView.RowAutoHeight = true;
             this.gvPairs.OptionsView.ShowGroupPanel = false;
-            this.gvPairs.DoubleClick += new System.EventHandler(this.gvPairs_DoubleClick);
+            this.gvPairs.FocusedRowChanged += new DevExpress.XtraGrid.Views.Base.FocusedRowChangedEventHandler(this.gvPairs_FocusedRowChanged);
+            // 
+            // lblFamilyLines
+            // 
+            this.lblFamilyLines.Location = new System.Drawing.Point(6, 348);
+            this.lblFamilyLines.Name = "lblFamilyLines";
+            this.lblFamilyLines.TabIndex = 6;
+            this.lblFamilyLines.Text = "Lines in this rhyme family:";
+            // 
+            // lbFamilyLines
+            // 
+            this.lbFamilyLines.Anchor = (System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right);
+            this.lbFamilyLines.Location = new System.Drawing.Point(6, 368);
+            this.lbFamilyLines.Name = "lbFamilyLines";
+            this.lbFamilyLines.Size = new System.Drawing.Size(958, 192);
+            this.lbFamilyLines.TabIndex = 7;
+            this.lbFamilyLines.DoubleClick += new System.EventHandler(this.lbFamilyLines_DoubleClick);
             // 
             // sbShuffle
             // 
             this.sbShuffle.Location = new System.Drawing.Point(6, 6);
             this.sbShuffle.Name = "sbShuffle";
             this.sbShuffle.Size = new System.Drawing.Size(120, 26);
-            this.sbShuffle.TabIndex = 6;
+            this.sbShuffle.TabIndex = 8;
             this.sbShuffle.Text = "Shuffle";
             this.sbShuffle.Click += new System.EventHandler(this.sbShuffle_Click);
             // 
@@ -212,7 +233,7 @@ namespace Lyricist.Desktop
             // 
             this.lblShuffle.Location = new System.Drawing.Point(140, 11);
             this.lblShuffle.Name = "lblShuffle";
-            this.lblShuffle.TabIndex = 7;
+            this.lblShuffle.TabIndex = 9;
             this.lblShuffle.Text = "";
             // 
             // ceLock1
@@ -220,7 +241,7 @@ namespace Lyricist.Desktop
             this.ceLock1.Location = new System.Drawing.Point(6, 42);
             this.ceLock1.Name = "ceLock1";
             this.ceLock1.Size = new System.Drawing.Size(70, 20);
-            this.ceLock1.TabIndex = 8;
+            this.ceLock1.TabIndex = 10;
             this.ceLock1.Properties.Caption = "Lock";
             // 
             // sbOpen1
@@ -228,7 +249,7 @@ namespace Lyricist.Desktop
             this.sbOpen1.Location = new System.Drawing.Point(86, 40);
             this.sbOpen1.Name = "sbOpen1";
             this.sbOpen1.Size = new System.Drawing.Size(80, 23);
-            this.sbOpen1.TabIndex = 9;
+            this.sbOpen1.TabIndex = 11;
             this.sbOpen1.Text = "Open";
             this.sbOpen1.Click += new System.EventHandler(this.sbOpen_Click);
             // 
@@ -239,14 +260,14 @@ namespace Lyricist.Desktop
             this.meShuffle1.Name = "meShuffle1";
             this.meShuffle1.Properties.ReadOnly = true;
             this.meShuffle1.Size = new System.Drawing.Size(310, 490);
-            this.meShuffle1.TabIndex = 10;
+            this.meShuffle1.TabIndex = 12;
             // 
             // ceLock2
             // 
             this.ceLock2.Location = new System.Drawing.Point(328, 42);
             this.ceLock2.Name = "ceLock2";
             this.ceLock2.Size = new System.Drawing.Size(70, 20);
-            this.ceLock2.TabIndex = 11;
+            this.ceLock2.TabIndex = 13;
             this.ceLock2.Properties.Caption = "Lock";
             // 
             // sbOpen2
@@ -254,7 +275,7 @@ namespace Lyricist.Desktop
             this.sbOpen2.Location = new System.Drawing.Point(408, 40);
             this.sbOpen2.Name = "sbOpen2";
             this.sbOpen2.Size = new System.Drawing.Size(80, 23);
-            this.sbOpen2.TabIndex = 12;
+            this.sbOpen2.TabIndex = 14;
             this.sbOpen2.Text = "Open";
             this.sbOpen2.Click += new System.EventHandler(this.sbOpen_Click);
             // 
@@ -265,14 +286,14 @@ namespace Lyricist.Desktop
             this.meShuffle2.Name = "meShuffle2";
             this.meShuffle2.Properties.ReadOnly = true;
             this.meShuffle2.Size = new System.Drawing.Size(310, 490);
-            this.meShuffle2.TabIndex = 13;
+            this.meShuffle2.TabIndex = 15;
             // 
             // ceLock3
             // 
             this.ceLock3.Location = new System.Drawing.Point(650, 42);
             this.ceLock3.Name = "ceLock3";
             this.ceLock3.Size = new System.Drawing.Size(70, 20);
-            this.ceLock3.TabIndex = 14;
+            this.ceLock3.TabIndex = 16;
             this.ceLock3.Properties.Caption = "Lock";
             // 
             // sbOpen3
@@ -280,7 +301,7 @@ namespace Lyricist.Desktop
             this.sbOpen3.Location = new System.Drawing.Point(730, 40);
             this.sbOpen3.Name = "sbOpen3";
             this.sbOpen3.Size = new System.Drawing.Size(80, 23);
-            this.sbOpen3.TabIndex = 15;
+            this.sbOpen3.TabIndex = 17;
             this.sbOpen3.Text = "Open";
             this.sbOpen3.Click += new System.EventHandler(this.sbOpen_Click);
             // 
@@ -291,14 +312,14 @@ namespace Lyricist.Desktop
             this.meShuffle3.Name = "meShuffle3";
             this.meShuffle3.Properties.ReadOnly = true;
             this.meShuffle3.Size = new System.Drawing.Size(310, 490);
-            this.meShuffle3.TabIndex = 16;
+            this.meShuffle3.TabIndex = 18;
             // 
             // sbOpenNext
             // 
             this.sbOpenNext.Location = new System.Drawing.Point(6, 6);
             this.sbOpenNext.Name = "sbOpenNext";
             this.sbOpenNext.Size = new System.Drawing.Size(170, 26);
-            this.sbOpenNext.TabIndex = 17;
+            this.sbOpenNext.TabIndex = 19;
             this.sbOpenNext.Text = "Open the next one";
             this.sbOpenNext.Click += new System.EventHandler(this.sbOpenNext_Click);
             // 
@@ -306,7 +327,7 @@ namespace Lyricist.Desktop
             // 
             this.lblReview.Location = new System.Drawing.Point(190, 11);
             this.lblReview.Name = "lblReview";
-            this.lblReview.TabIndex = 18;
+            this.lblReview.TabIndex = 20;
             this.lblReview.Text = "";
             // 
             // gcReview
@@ -318,7 +339,7 @@ namespace Lyricist.Desktop
             this.gcReview.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvReview});
             this.gcReview.Size = new System.Drawing.Size(958, 520);
-            this.gcReview.TabIndex = 19;
+            this.gcReview.TabIndex = 21;
             // 
             // gvReview
             // 
@@ -336,14 +357,14 @@ namespace Lyricist.Desktop
             this.ceSynonyms.Location = new System.Drawing.Point(6, 9);
             this.ceSynonyms.Name = "ceSynonyms";
             this.ceSynonyms.Size = new System.Drawing.Size(190, 20);
-            this.ceSynonyms.TabIndex = 20;
+            this.ceSynonyms.TabIndex = 22;
             this.ceSynonyms.Properties.Caption = "Count synonyms too";
             // 
             // lblWords
             // 
             this.lblWords.Location = new System.Drawing.Point(210, 11);
             this.lblWords.Name = "lblWords";
-            this.lblWords.TabIndex = 21;
+            this.lblWords.TabIndex = 23;
             this.lblWords.Text = "";
             // 
             // gcWords
@@ -355,7 +376,7 @@ namespace Lyricist.Desktop
             this.gcWords.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvWords});
             this.gcWords.Size = new System.Drawing.Size(958, 300);
-            this.gcWords.TabIndex = 22;
+            this.gcWords.TabIndex = 24;
             // 
             // gvWords
             // 
@@ -372,7 +393,7 @@ namespace Lyricist.Desktop
             // 
             this.lblWordIdeas.Location = new System.Drawing.Point(6, 344);
             this.lblWordIdeas.Name = "lblWordIdeas";
-            this.lblWordIdeas.TabIndex = 23;
+            this.lblWordIdeas.TabIndex = 25;
             this.lblWordIdeas.Text = "Ideas using the word (or its synonyms):";
             // 
             // lbWordIdeas
@@ -381,7 +402,7 @@ namespace Lyricist.Desktop
             this.lbWordIdeas.Location = new System.Drawing.Point(6, 364);
             this.lbWordIdeas.Name = "lbWordIdeas";
             this.lbWordIdeas.Size = new System.Drawing.Size(958, 196);
-            this.lbWordIdeas.TabIndex = 24;
+            this.lbWordIdeas.TabIndex = 26;
             this.lbWordIdeas.DoubleClick += new System.EventHandler(this.lbWordIdeas_DoubleClick);
             // 
             // WorkbenchForm
@@ -402,6 +423,7 @@ namespace Lyricist.Desktop
             ((System.ComponentModel.ISupportInitialize)(this.ceNear.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gcPairs)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvPairs)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lbFamilyLines)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ceLock1.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.meShuffle1.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ceLock2.Properties)).EndInit();
@@ -432,6 +454,8 @@ namespace Lyricist.Desktop
         private DevExpress.XtraEditors.LabelControl lblPairs;
         private DevExpress.XtraGrid.GridControl gcPairs;
         private DevExpress.XtraGrid.Views.Grid.GridView gvPairs;
+        private DevExpress.XtraEditors.LabelControl lblFamilyLines;
+        private DevExpress.XtraEditors.ListBoxControl lbFamilyLines;
         private DevExpress.XtraEditors.SimpleButton sbShuffle;
         private DevExpress.XtraEditors.LabelControl lblShuffle;
         private DevExpress.XtraEditors.CheckEdit ceLock1;

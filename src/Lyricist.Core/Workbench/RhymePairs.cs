@@ -22,24 +22,21 @@ namespace Lyricist.Core.Workbench
         public string LastWord { get; }
     }
 
-    public sealed class RhymePair
+    /// <summary>Lines whose last words rhyme perfectly with each other (the "-ight" family...).</summary>
+    public sealed class RhymeFamily
     {
-        public RhymePair (LineEnd a, LineEnd b, RhymeKind kind)
-        {
-            A = a;
-            B = b;
-            Kind = kind;
-        }
-
-        public LineEnd A { get; }
-        public LineEnd B { get; }
-        public RhymeKind Kind { get; }
+        public string Key { get; set; }                       // "aɪ t"
+        public List<LineEnd> Lines { get; } = new List<LineEnd>();
+        public List<string> Words { get; } = new List<string>();   // distinct last words
+        public int Ideas => Lines.Select (l => l.Lyric).Distinct().Count();
     }
 
     /// <summary>
-    /// Pairs of ideas whose lines end in rhyming words: ready-made couplets. Each line of an idea's
-    /// text counts (a one-liner has one); lines from the same idea aren't paired with each other,
-    /// and the same word twice isn't a rhyme.
+    /// Ready-made couplets, as rhyme families: every line of every idea, grouped by the rhyme
+    /// sound its last word ends on. A family needs two different words from two different ideas
+    /// (ten lines ending in "you" aren't a rhyme). Pairing every line with every other was tried
+    /// first (0.3.0) and swamped the screen: a family of 30 lines is 435 pairs.
+    /// Near rhymes for a family are worked out when it's picked (NearLines).
     /// </summary>
     public static class RhymePairs
     {
@@ -62,49 +59,55 @@ namespace Lyricist.Core.Workbench
             return ends;
         }
 
-        public static List<RhymePair> Find (IEnumerable<Lyric> lyrics, Rhymer rhymer, bool includeNear)
+        public static List<RhymeFamily> Families (IList<LineEnd> ends, Rhymer rhymer)
         {
-            List<LineEnd> ends = LineEnds (lyrics);
-
-            // Only lines whose words share a "same vowels" key can rhyme: compare within those groups.
-            var groups = new Dictionary<string, List<int>> (StringComparer.Ordinal);
-            for (int i = 0; i < ends.Count; i++)
-                foreach (string key in rhymer.VowelKeys (ends[i].LastWord))
+            var byKey = new Dictionary<string, RhymeFamily> (StringComparer.Ordinal);
+            foreach (LineEnd end in ends)
+                foreach (string key in rhymer.RhymeKeys (end.LastWord))
                 {
-                    if (!groups.TryGetValue (key, out List<int> members))
-                        groups[key] = members = new List<int>();
-                    members.Add (i);
+                    if (!byKey.TryGetValue (key, out RhymeFamily family))
+                        byKey[key] = family = new RhymeFamily { Key = key };
+                    family.Lines.Add (end);
                 }
 
-            var pairs = new List<RhymePair>();
-            var seen = new HashSet<long>();
-            var compared = new Dictionary<string, RhymeKind> (StringComparer.Ordinal);
+            var families = new List<RhymeFamily>();
+            foreach (RhymeFamily family in byKey.Values)
+            {
+                foreach (string word in family.Lines.Select (l => PronouncingDictionary.Normalise (l.LastWord)).Distinct())
+                    family.Words.Add (word);
+                // Two different words, in two different ideas.
+                bool rhymes = family.Lines.Any (a => family.Lines.Any (b =>
+                    !ReferenceEquals (a.Lyric, b.Lyric)
+                    && PronouncingDictionary.Normalise (a.LastWord) != PronouncingDictionary.Normalise (b.LastWord)));
+                if (!rhymes)
+                    continue;
+                family.Lines.Sort ((a, b) => string.CompareOrdinal (PronouncingDictionary.Normalise (a.LastWord),
+                                                                   PronouncingDictionary.Normalise (b.LastWord)));
+                families.Add (family);
+            }
+            return families.OrderByDescending (f => f.Words.Count)
+                           .ThenByDescending (f => f.Ideas)
+                           .ThenBy (f => f.Key, StringComparer.Ordinal)
+                           .ToList();
+        }
 
-            foreach (List<int> members in groups.Values)
-                for (int x = 0; x < members.Count; x++)
-                    for (int y = x + 1; y < members.Count; y++)
-                    {
-                        int i = Math.Min (members[x], members[y]), j = Math.Max (members[x], members[y]);
-                        if (i == j || !seen.Add (((long) i << 32) | (uint) j))
-                            continue;
-                        LineEnd a = ends[i], b = ends[j];
-                        if (ReferenceEquals (a.Lyric, b.Lyric))
-                            continue;
-                        string wa = PronouncingDictionary.Normalise (a.LastWord), wb = PronouncingDictionary.Normalise (b.LastWord);
-                        if (wa == wb)
-                            continue;
-
-                        string pairKey = string.CompareOrdinal (wa, wb) < 0 ? wa + "|" + wb : wb + "|" + wa;
-                        if (!compared.TryGetValue (pairKey, out RhymeKind kind))
-                            compared[pairKey] = kind = rhymer.Compare (wa, wb);
-
-                        if (kind == RhymeKind.Perfect || (includeNear && kind == RhymeKind.Near))
-                            pairs.Add (new RhymePair (a, b, kind));
-                    }
-
-            return pairs.OrderByDescending (p => p.Kind)
-                        .ThenBy (p => PronouncingDictionary.Normalise (p.A.LastWord), StringComparer.Ordinal)
-                        .ToList();
+        /// <summary>Lines (not in the family) whose last word is a near rhyme for one of its words.</summary>
+        public static List<LineEnd> NearLines (RhymeFamily family, IList<LineEnd> ends, Rhymer rhymer)
+        {
+            var inFamily = new HashSet<LineEnd> (family.Lines);
+            var memo = new Dictionary<string, bool> (StringComparer.Ordinal);
+            var near = new List<LineEnd>();
+            foreach (LineEnd end in ends)
+            {
+                if (inFamily.Contains (end))
+                    continue;
+                string word = PronouncingDictionary.Normalise (end.LastWord);
+                if (!memo.TryGetValue (word, out bool isNear))
+                    memo[word] = isNear = family.Words.Any (w => rhymer.Compare (w, word) == RhymeKind.Near);
+                if (isNear)
+                    near.Add (end);
+            }
+            return near;
         }
     }
 }

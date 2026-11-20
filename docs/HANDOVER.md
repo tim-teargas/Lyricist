@@ -95,6 +95,15 @@ lyrics and vocals for DumbAngel, repo tim-teargas/DumbAngel).
     -ing / -ed folded to a known base word; "Count synonyms too" adds ideas using the word's one-word
     thesaurus synonyms, not chained; ideas list below). Tabs recompute only when stale.
   - Tim on rhyme pairs: some idea texts aren't one line per lyric line; see how it goes.
+- **0.3.1**: 0.3.0's Rhyme pairs froze the app for over a minute (ContextSwitchDeadlock under the
+  debugger): every line paired with every other is O(n^2) pairs (a 30-line family = 435), shown in
+  a grid with auto row heights and BestFitColumns over all rows. Now **Rhyme families**
+  (`RhymePairs.Families`: lines grouped by perfect-rhyme key; a family needs two different words
+  from two different ideas; sorted by different words, then ideas): family grid on top, its lines
+  below, "Show near rhymes too" adds lines that near-rhyme with the family's words
+  (`RhymePairs.NearLines`, worked out when a family is picked). Families and recurring words are
+  computed with `Task.Run` (the UI stays live; a newer request wins), grids best-fit 100 rows at
+  most, no memo editors.
 
 ## Plan (agreed 20 Nov)
 
