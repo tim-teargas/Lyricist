@@ -17,25 +17,32 @@
        Their own dependencies in the same folder are copied to the output automatically. -->
   <ItemGroup>
     <Reference Include="DevExpress.Data.$(DevExpressVersion)">
-      <HintPath>$(DevExpressBin)\DevExpress.Data.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="Exists('$(DevExpressBin)\DevExpress.Data.$(DevExpressVersion).dll')">$(DevExpressBin)\DevExpress.Data.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="!Exists('$(DevExpressBin)\DevExpress.Data.$(DevExpressVersion).dll')">$(DevExpressStdBin)\DevExpress.Data.$(DevExpressVersion).dll</HintPath>
     </Reference>
     <Reference Include="DevExpress.Data.Desktop.$(DevExpressVersion)">
-      <HintPath>$(DevExpressBin)\DevExpress.Data.Desktop.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="Exists('$(DevExpressBin)\DevExpress.Data.Desktop.$(DevExpressVersion).dll')">$(DevExpressBin)\DevExpress.Data.Desktop.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="!Exists('$(DevExpressBin)\DevExpress.Data.Desktop.$(DevExpressVersion).dll')">$(DevExpressStdBin)\DevExpress.Data.Desktop.$(DevExpressVersion).dll</HintPath>
     </Reference>
     <Reference Include="DevExpress.Xpo.$(DevExpressVersion)">
-      <HintPath>$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="Exists('$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll')">$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="!Exists('$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll')">$(DevExpressStdBin)\DevExpress.Xpo.$(DevExpressVersion).dll</HintPath>
     </Reference>
     <Reference Include="DevExpress.Utils.$(DevExpressVersion)">
-      <HintPath>$(DevExpressBin)\DevExpress.Utils.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="Exists('$(DevExpressBin)\DevExpress.Utils.$(DevExpressVersion).dll')">$(DevExpressBin)\DevExpress.Utils.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="!Exists('$(DevExpressBin)\DevExpress.Utils.$(DevExpressVersion).dll')">$(DevExpressStdBin)\DevExpress.Utils.$(DevExpressVersion).dll</HintPath>
     </Reference>
     <Reference Include="DevExpress.XtraEditors.$(DevExpressVersion)">
-      <HintPath>$(DevExpressBin)\DevExpress.XtraEditors.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="Exists('$(DevExpressBin)\DevExpress.XtraEditors.$(DevExpressVersion).dll')">$(DevExpressBin)\DevExpress.XtraEditors.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="!Exists('$(DevExpressBin)\DevExpress.XtraEditors.$(DevExpressVersion).dll')">$(DevExpressStdBin)\DevExpress.XtraEditors.$(DevExpressVersion).dll</HintPath>
     </Reference>
     <Reference Include="DevExpress.XtraGrid.$(DevExpressVersion)">
-      <HintPath>$(DevExpressBin)\DevExpress.XtraGrid.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="Exists('$(DevExpressBin)\DevExpress.XtraGrid.$(DevExpressVersion).dll')">$(DevExpressBin)\DevExpress.XtraGrid.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="!Exists('$(DevExpressBin)\DevExpress.XtraGrid.$(DevExpressVersion).dll')">$(DevExpressStdBin)\DevExpress.XtraGrid.$(DevExpressVersion).dll</HintPath>
     </Reference>
     <Reference Include="DevExpress.Printing.$(DevExpressVersion).Core">
-      <HintPath>$(DevExpressBin)\DevExpress.Printing.$(DevExpressVersion).Core.dll</HintPath>
+      <HintPath Condition="Exists('$(DevExpressBin)\DevExpress.Printing.$(DevExpressVersion).Core.dll')">$(DevExpressBin)\DevExpress.Printing.$(DevExpressVersion).Core.dll</HintPath>
+      <HintPath Condition="!Exists('$(DevExpressBin)\DevExpress.Printing.$(DevExpressVersion).Core.dll')">$(DevExpressStdBin)\DevExpress.Printing.$(DevExpressVersion).Core.dll</HintPath>
     </Reference>
   </ItemGroup>
 

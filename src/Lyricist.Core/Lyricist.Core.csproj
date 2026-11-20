@@ -7,10 +7,12 @@
 
   <ItemGroup>
     <Reference Include="DevExpress.Data.$(DevExpressVersion)">
-      <HintPath>$(DevExpressBin)\DevExpress.Data.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="Exists('$(DevExpressBin)\DevExpress.Data.$(DevExpressVersion).dll')">$(DevExpressBin)\DevExpress.Data.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="!Exists('$(DevExpressBin)\DevExpress.Data.$(DevExpressVersion).dll')">$(DevExpressStdBin)\DevExpress.Data.$(DevExpressVersion).dll</HintPath>
     </Reference>
     <Reference Include="DevExpress.Xpo.$(DevExpressVersion)">
-      <HintPath>$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="Exists('$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll')">$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll</HintPath>
+      <HintPath Condition="!Exists('$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll')">$(DevExpressStdBin)\DevExpress.Xpo.$(DevExpressVersion).dll</HintPath>
     </Reference>
   </ItemGroup>
 

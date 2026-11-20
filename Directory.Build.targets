@@ -1,13 +1,21 @@
 <Project>
-  <!-- DevExpress 21.2 ships separate assemblies for .NET Framework and .NET (Core). -->
+  <!--
+    DevExpress 21.2's folders under Components\Bin:
+      Framework  everything, for .NET Framework (net48)
+      NetCore    the WinForms controls for .NET (Core)
+      Standard   the .NET Standard libraries (Data, Xpo, ...) used by .NET (Core)
+    Each reference looks in DevExpressBin first, then DevExpressStdBin.
+  -->
   <PropertyGroup>
     <DevExpressBin Condition="'$(DevExpressBin)' == '' And $(TargetFramework.StartsWith('net4'))">$(DevExpressRoot)\Framework</DevExpressBin>
+    <DevExpressStdBin Condition="'$(DevExpressStdBin)' == '' And $(TargetFramework.StartsWith('net4'))">$(DevExpressRoot)\Framework</DevExpressStdBin>
     <DevExpressBin Condition="'$(DevExpressBin)' == ''">$(DevExpressRoot)\NetCore</DevExpressBin>
+    <DevExpressStdBin Condition="'$(DevExpressStdBin)' == ''">$(DevExpressRoot)\Standard</DevExpressStdBin>
   </PropertyGroup>
 
   <!-- Stop with a clear message rather than a page of "DevExpress could not be found" errors. -->
   <Target Name="CheckDevExpressFolder" BeforeTargets="ResolveAssemblyReferences">
-    <Error Condition="!Exists('$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll')"
-           Text="DevExpress.Xpo.$(DevExpressVersion).dll isn't in '$(DevExpressBin)'. Check DevExpressRoot in Directory.Build.props (or set DevExpressBin to the folder that holds the DLLs for $(TargetFramework))." />
+    <Error Condition="!Exists('$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll') And !Exists('$(DevExpressStdBin)\DevExpress.Xpo.$(DevExpressVersion).dll')"
+           Text="DevExpress.Xpo.$(DevExpressVersion).dll isn't in '$(DevExpressBin)' or '$(DevExpressStdBin)'. Check DevExpressRoot in Directory.Build.props." />
   </Target>
 </Project>
