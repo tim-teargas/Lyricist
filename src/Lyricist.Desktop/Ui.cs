@@ -10,8 +10,46 @@ namespace Lyricist.Desktop
     {
         public static void Error (string message, Exception ex = null)
         {
+            if (ex != null)
+                Log (ex);
             string text = ex == null ? message : message + Environment.NewLine + Environment.NewLine + ex.Message;
             XtraMessageBox.Show (text, "Lyricist", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        public static string LogPath => System.IO.Path.Combine (Core.AppSettings.Folder, "errors.log");
+
+        /// <summary>Appends an exception (with its stack trace) to %APPDATA%\Lyricist\errors.log.</summary>
+        public static void Log (Exception ex)
+        {
+            try
+            {
+                System.IO.Directory.CreateDirectory (Core.AppSettings.Folder);
+                System.IO.File.AppendAllText (LogPath,
+                    $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}{Environment.NewLine}{ex}{Environment.NewLine}{Environment.NewLine}");
+            }
+            catch
+            {
+                // Logging must never throw.
+            }
+        }
+
+        /// <summary>The last resort for anything not caught where it happened.</summary>
+        public static void Unhandled (Exception ex)
+        {
+            if (ex == null)
+                return;
+            Log (ex);
+            try
+            {
+                XtraMessageBox.Show ("Something went wrong:" + Environment.NewLine + Environment.NewLine
+                                     + ex.GetType().Name + ": " + ex.Message + Environment.NewLine + Environment.NewLine
+                                     + "Details are in " + LogPath + ". Lyricist will try to carry on.",
+                                     "Lyricist", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch
+            {
+                // No UI left to show it on.
+            }
         }
 
         public static void Info (string message) =>

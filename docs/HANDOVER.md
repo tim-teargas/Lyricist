@@ -74,6 +74,11 @@ lyrics and vocals for DumbAngel, repo tim-teargas/DumbAngel).
     once, one per lyric; closing refreshes the list); their Rhymes / Synonyms buttons open the Words
     window on the word at the cursor + its line; double-clicking a word looks it up when the Words
     window is open. List: Words... button.
+  - Fix after Tim's test: apostrophe words (ol', lovin', 'cause) are kept by Normalise; Lookup also
+    tries without end apostrophes. Tim: "all working perfectly".
+- **0.2.1**: global error handler (`Ui.Unhandled`: ThreadException / UnhandledException, shown and
+  logged to `%APPDATA%\Lyricist\errors.log`; `Ui.Error` logs too); default font 9.75
+  (`WindowsFormsSettings.DefaultFont`, forms auto-scale) at Tim's request.
 
 ## Plan (agreed 20 Nov)
 
