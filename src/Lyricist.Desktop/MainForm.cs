@@ -19,12 +19,16 @@ namespace Lyricist.Desktop
     /// The lyric list (the prototype's ucLyricList). Every Lyric column is available: the
     /// main ones show, the rest (kinds, themes, dates, Ref) are in the Column Chooser
     /// (right-click a column header). Column layout, sorting and filters are remembered.
+    /// Lyrics open in their own windows (several at once), beside the Words window.
     /// </summary>
     public partial class MainForm : XtraForm
     {
         readonly AppSettings settings;
         readonly Session session = new Session();   // uses XpoDefault.DataLayer (Database.Connect)
         XPCollection<Lyric> lyrics;
+        readonly System.Collections.Generic.Dictionary<int, LyricEditForm> openForms =
+            new System.Collections.Generic.Dictionary<int, LyricEditForm>();   // by Oid (saved lyrics)
+        WordsForm words;
 
         static string GridLayoutPath => Path.Combine (AppSettings.Folder, "grid-layout.xml");
 
@@ -138,29 +142,72 @@ namespace Lyricist.Desktop
             }
         }
 
+        /// <summary>Opens a lyric in its own (modeless) window, or brings its window forward.</summary>
         void Edit (Lyric lyric)
         {
             try
             {
+                if (lyric.HasBeenSaved && openForms.TryGetValue (lyric.Oid, out LyricEditForm open) && !open.IsDisposed)
+                {
+                    if (open.WindowState == FormWindowState.Minimized)
+                        open.WindowState = FormWindowState.Normal;
+                    open.Activate();
+                    return;
+                }
+
                 bool isNew = !lyric.HasBeenSaved;
                 if (!isNew)
                     lyric.Reload();   // pick up changes made elsewhere since the list loaded
 
-                using (var form = new LyricEditForm (lyric, settings))
+                var form = new LyricEditForm (lyric, settings, ShowWords);
+                int oid = lyric.Oid;
+                if (!isNew)
+                    openForms[oid] = form;
+                form.FormClosed += (s, e) =>
                 {
-                    form.ShowDialog (this);
+                    if (!isNew)
+                        openForms.Remove (oid);
                     if (!form.Saved)
                         return;
-                }
-
-                if (isNew)
-                    ReloadList (lyric.Oid);
-                else
-                    gridView1.RefreshData();
+                    if (isNew)
+                        ReloadList (lyric.Oid);
+                    else
+                        gridView1.RefreshData();
+                };
+                form.StartPosition = FormStartPosition.Manual;
+                form.Location = new System.Drawing.Point (
+                    Math.Max (0, Left + (Width - form.Width) / 2 + 30 * openForms.Count),
+                    Math.Max (0, Top + (Height - form.Height) / 2 + 30 * openForms.Count));
+                form.Show (this);
             }
             catch (Exception ex)
             {
                 Ui.Error ("Problem editing the lyric.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Opens (or reuses) the Words window and looks a word up. onlyIfOpen: do nothing unless
+        /// it's already open (used by double-clicking a word in an edit form).
+        /// </summary>
+        public void ShowWords (string word, string line, bool onlyIfOpen)
+        {
+            try
+            {
+                if (words == null || words.IsDisposed)
+                {
+                    if (onlyIfOpen)
+                        return;
+                    words = new WordsForm (settings, () => lyrics, Edit);
+                    words.Show (this);
+                }
+                else if (!words.Visible)
+                    words.Show (this);
+                words.LookUp (word, line);
+            }
+            catch (Exception ex)
+            {
+                Ui.Error ("Problem opening the Words window.", ex);
             }
         }
 
@@ -266,6 +313,9 @@ namespace Lyricist.Desktop
                 Ui.Error ("Problem exporting the list.", ex);
             }
         }
+
+        void sbWords_Click (object sender, EventArgs e) =>
+            ShowWords (FocusedLyric?.Text ?? "", null, false);
 
         void sbSettings_Click (object sender, EventArgs e)
         {

@@ -16,6 +16,11 @@
     </Reference>
   </ItemGroup>
 
+  <!-- Pronunciation dictionaries and thesaurus: copied to WordData\ next to the exe. -->
+  <ItemGroup>
+    <None Update="WordData\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <!-- On .NET (not Framework) XPO's SQL Server provider needs the client library as a package. -->
   <ItemGroup Condition="!$(TargetFramework.StartsWith('net4'))">
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />

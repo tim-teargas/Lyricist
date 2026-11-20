@@ -56,11 +56,28 @@ lyrics and vocals for DumbAngel, repo tim-teargas/DumbAngel).
   **net48**. Tested by Tim 20 Nov: builds and runs, reads all 1,063 ideas. Staying on 4.8 (DevExpress
   21.2 is all he has a licence for).
 
+- **v0.2.0 (20 Nov 2026, evening)**: the word panel (stage 1's second half). Not yet built by Tim.
+  - Core `Words/`: `PronouncingDictionary` (CMU for US; Britfone for UK, else CMU made British:
+    non-rhotic, LOT ɒ, GOAT əʊ, NURSE ɜː; BATH can't be told apart so keeps æ), shared IPA-like
+    `Phone` symbols with stress -1 / 0 / 1 / 2; `Rhymer` per accent (perfect = same from the last
+    primary-stressed vowel; near = same vowels + close consonants: same kind, one extra, or + s/z;
+    vowel only = assonance; weak unstressed vowels after the stress count as one); `Scansion`
+    (syllables, DUM / Dum / da patterns, line totals; unknown words estimated, marked ?);
+    `Thesaurus` (MyThes / WordNet); `WordData` (lazy, thread-safe, `Preload`, `IsLoaded`). Data in
+    `src/Lyricist.Core/WordData` (gzipped, ~5 MB, licences + README), copied next to the exe.
+    The rules were tried in Python first: UK "car" rhymes with "spa", US "father" with "bother".
+  - Desktop: `WordsForm` (one modeless window: word box, Look up, Back, UK / US, Include rare words
+    (rare = not in Britfone's 16k), info line, Line box with scansion, tabs Rhymes (Perfect / Near /
+    Vowel only lists, double-click = look up), Synonyms (double-click a word = look up), In your
+    ideas (lines whose last word rhymes perfect / near; double-click opens the idea)). Accent, rare
+    words and window bounds saved in settings. Edit forms are now **modeless** (several open at
+    once, one per lyric; closing refreshes the list); their Rhymes / Synonyms buttons open the Words
+    window on the word at the cursor + its line; double-clicking a word looks it up when the Words
+    window is open. List: Words... button.
+
 ## Plan (agreed 20 Nov)
 
-1. **Capture** (done, v0.1.0) - then the **word panel**: offline rhymes (perfect, near, vowel-only),
-   syllable counts and stress from the CMU Pronouncing Dictionary; synonyms from WordNet or Moby
-   (data files shipped with the app). Replaces the web buttons.
+1. **Capture** (done, v0.1.0) and the **word panel** (v0.2.0, above).
 2. **Workbench window**: rhyme pairs across the whole collection (ready-made couplets), "shuffle
    three" collisions with filters, review queue (oldest LastReviewedAt), recurring words.
 3. **Song drafts** (new tables): sections (verse / chorus / bridge), ideas pulled in by Oid,

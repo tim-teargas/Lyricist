@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Net;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
 using DumbAngel;
@@ -9,8 +8,8 @@ using Lyricist.Core;
 namespace Lyricist.Desktop
 {
     /// <summary>
-    /// One lyric idea (the prototype's frmLyricEdit). The form copies values into the Lyric only
-    /// on OK / Apply, so Cancel leaves it untouched.
+    /// One lyric idea (the prototype's frmLyricEdit), in its own window (several can be open).
+    /// The form copies values into the Lyric only on OK / Apply, so Cancel leaves it untouched.
     /// </summary>
     public partial class LyricEditForm : XtraForm
     {
@@ -18,15 +17,19 @@ namespace Lyricist.Desktop
 
         readonly Lyric lyric;
         readonly AppSettings settings;
+        readonly Action<string, string, bool> showWords;   // (word, line, onlyIfOpen): MainForm.ShowWords
 
         /// <summary>True once the lyric has been saved (OK or Apply).</summary>
         public bool Saved { get; private set; }
 
-        public LyricEditForm (Lyric lyric, AppSettings settings)
+        public LyricEditForm (Lyric lyric, AppSettings settings, Action<string, string, bool> showWords)
         {
             InitializeComponent();
             this.lyric = lyric;
             this.settings = settings;
+            this.showWords = showWords;
+            // Double-click a word: it's selected as usual, and looked up if the Words window is open.
+            meText.DoubleClick += (s, e) => BeginInvoke ((Action) (() => SendToWords (onlyIfOpen: true)));
         }
 
         protected override void OnLoad (EventArgs e)
@@ -176,12 +179,42 @@ namespace Lyricist.Desktop
                                     CultureInfo.InvariantCulture, DateTimeStyles.None, out value)
             || DateTime.TryParse (text, out value);
 
-        string SelectedWord()
+        static readonly System.Text.RegularExpressions.Regex wordPattern =
+            new System.Text.RegularExpressions.Regex (@"[A-Za-z\u2019']+(?:-[A-Za-z\u2019']+)*");
+
+        /// <summary>The selected word, else the word at the cursor, else the line's last word.</summary>
+        string WordAtCursor()
         {
-            string word = meText.SelectedText.Trim();
-            if (word.Length == 0)
-                Ui.Info ("Highlight a word in the text first.");
-            return word;
+            if (meText.SelectedText.Trim().Length > 0)
+                return meText.SelectedText.Trim();
+            string text = meText.Text ?? "";
+            int at = Math.Min (meText.SelectionStart, text.Length);
+            foreach (System.Text.RegularExpressions.Match m in wordPattern.Matches (text))
+                if (at >= m.Index && at <= m.Index + m.Length)
+                    return m.Value;
+            var all = wordPattern.Matches (CurrentLine());
+            return all.Count > 0 ? all[all.Count - 1].Value : "";
+        }
+
+        /// <summary>The line of the text the cursor is on.</summary>
+        string CurrentLine()
+        {
+            string text = meText.Text ?? "";
+            int at = Math.Min (meText.SelectionStart, text.Length);
+            int start = text.LastIndexOf ('\n', Math.Max (0, at - 1));
+            start = at == 0 || start < 0 ? 0 : start + 1;
+            int end = text.IndexOf ('\n', at);
+            if (end < 0) end = text.Length;
+            return text.Substring (start, end - start).Trim();
+        }
+
+        void SendToWords (bool onlyIfOpen)
+        {
+            string word = WordAtCursor();
+            if (word.Length > 0)
+                showWords (word, CurrentLine(), onlyIfOpen);
+            else if (!onlyIfOpen)
+                Ui.Info ("Put the cursor on a word in the text first.");
         }
 
         // ---------------------------------------------------------------------------------
@@ -262,19 +295,9 @@ namespace Lyricist.Desktop
             meSource.SelectionStart = meSource.Text.Length;
         }
 
-        // Still the web pages for now; stage 2 replaces these with the offline word panel.
-        void sbSynonyms_Click (object sender, EventArgs e)
-        {
-            string word = SelectedWord();
-            if (word.Length > 0)
-                Ui.Open ("https://www.thesaurus.com/browse/" + WebUtility.UrlEncode (word));
-        }
+        // Both open the Words window (rhymes, syllables, synonyms) on the word at the cursor.
+        void sbSynonyms_Click (object sender, EventArgs e) => SendToWords (onlyIfOpen: false);
 
-        void sbRhymes_Click (object sender, EventArgs e)
-        {
-            string word = SelectedWord();
-            if (word.Length > 0)
-                Ui.Open ("https://www.rhymezone.com/r/rhyme.cgi?typeofrhyme=adv&Word=" + WebUtility.UrlEncode (word));
-        }
+        void sbRhymes_Click (object sender, EventArgs e) => SendToWords (onlyIfOpen: false);
     }
 }

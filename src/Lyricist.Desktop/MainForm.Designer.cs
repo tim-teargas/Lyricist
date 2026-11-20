@@ -32,6 +32,7 @@ namespace Lyricist.Desktop
             this.sbImport = new DevExpress.XtraEditors.SimpleButton();
             this.sbExport = new DevExpress.XtraEditors.SimpleButton();
             this.sbSettings = new DevExpress.XtraEditors.SimpleButton();
+            this.sbWords = new DevExpress.XtraEditors.SimpleButton();
             this.sbRefresh = new DevExpress.XtraEditors.SimpleButton();
             this.gridControl1 = new DevExpress.XtraGrid.GridControl();
             this.gridView1 = new DevExpress.XtraGrid.Views.Grid.GridView();
@@ -75,13 +76,22 @@ namespace Lyricist.Desktop
             this.sbSettings.Text = "Settings...";
             this.sbSettings.Click += new System.EventHandler(this.sbSettings_Click);
             // 
+            // sbWords
+            // 
+            this.sbWords.Location = new System.Drawing.Point(426, 12);
+            this.sbWords.Name = "sbWords";
+            this.sbWords.Size = new System.Drawing.Size(90, 23);
+            this.sbWords.TabIndex = 4;
+            this.sbWords.Text = "Words...";
+            this.sbWords.Click += new System.EventHandler(this.sbWords_Click);
+            // 
             // sbRefresh
             // 
             this.sbRefresh.Anchor = (System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right);
             this.sbRefresh.Location = new System.Drawing.Point(1068, 12);
             this.sbRefresh.Name = "sbRefresh";
             this.sbRefresh.Size = new System.Drawing.Size(100, 23);
-            this.sbRefresh.TabIndex = 4;
+            this.sbRefresh.TabIndex = 5;
             this.sbRefresh.Text = "Refresh";
             this.sbRefresh.Click += new System.EventHandler(this.sbRefresh_Click);
             // 
@@ -94,7 +104,7 @@ namespace Lyricist.Desktop
             this.gridControl1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gridView1});
             this.gridControl1.Size = new System.Drawing.Size(1156, 604);
-            this.gridControl1.TabIndex = 5;
+            this.gridControl1.TabIndex = 6;
             // 
             // gridView1
             // 
@@ -116,6 +126,7 @@ namespace Lyricist.Desktop
             this.ClientSize = new System.Drawing.Size(1180, 660);
             this.Controls.Add(this.gridControl1);
             this.Controls.Add(this.sbRefresh);
+            this.Controls.Add(this.sbWords);
             this.Controls.Add(this.sbSettings);
             this.Controls.Add(this.sbExport);
             this.Controls.Add(this.sbImport);
@@ -136,6 +147,7 @@ namespace Lyricist.Desktop
         private DevExpress.XtraEditors.SimpleButton sbImport;
         private DevExpress.XtraEditors.SimpleButton sbExport;
         private DevExpress.XtraEditors.SimpleButton sbSettings;
+        private DevExpress.XtraEditors.SimpleButton sbWords;
         private DevExpress.XtraEditors.SimpleButton sbRefresh;
         private DevExpress.XtraGrid.GridControl gridControl1;
         private DevExpress.XtraGrid.Views.Grid.GridView gridView1;

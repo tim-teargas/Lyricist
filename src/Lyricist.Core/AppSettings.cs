@@ -28,6 +28,12 @@ namespace Lyricist.Core
         public string LastConceivedText { get; set; } = "";
         public string LastSourceInfo { get; set; } = "";
 
+        // Words window
+        public string Accent { get; set; } = "UK";   // "UK" / "US"
+        public bool IncludeRareWords { get; set; }
+        /// <summary>"left,top,width,height"; empty = beside the main window.</summary>
+        public string WordsWindowBounds { get; set; } = "";
+
         // ---------------------------------------------------------------------------------
 
         public static string Folder =>
