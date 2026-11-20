@@ -3,7 +3,9 @@
     Shared settings for every project in the solution.
 
     1. LyricistTargetFramework: the ONE line to change if DevExpress 21.2 misbehaves on .NET 10.
-       net10.0-windows (preferred) or net48 (.NET Framework 4.8, same as the DumbAngel prototype).
+       net48 (.NET Framework 4.8, same as the DumbAngel prototype) or net10.0-windows.
+       20 Nov 2026: on net10.0-windows, DevExpress 21.2's XtraForm crashes at start-up
+       (FormIconHelper type initializer, NullReferenceException): 21.2 predates .NET 10.
 
     2. DevExpressRoot: where DevExpress 21.2 is installed. Check it matches your machine
        (your prototype project's DevExpress references show the real path). Directory.Build.targets
@@ -11,7 +13,7 @@
        straight at a folder instead, set DevExpressBin here.
   -->
   <PropertyGroup>
-    <LyricistTargetFramework>net10.0-windows</LyricistTargetFramework>
+    <LyricistTargetFramework>net48</LyricistTargetFramework>
     <DevExpressVersion>v21.2</DevExpressVersion>
     <DevExpressRoot>D:\Program Files (x86)\DevExpress 21.2\Components\Bin</DevExpressRoot>
 

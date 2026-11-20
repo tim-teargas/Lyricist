@@ -48,8 +48,11 @@ lyrics and vocals for DumbAngel, repo tim-teargas/DumbAngel).
 
 ## Status
 
-- **v0.1.0 (20 Nov 2026)**: the runnable capture app above. Not yet built by Tim: first build will
-  show whether the DevExpress paths / .NET 10 work.
+- **v0.1.0 (20 Nov 2026)**: the runnable capture app above. DevExpress 21.2 is installed in
+  `D:\Program Files (x86)\DevExpress 21.2\Components\Bin` (Framework / NetCore / Standard; for .NET
+  builds Data and Xpo are in Standard). Builds on .NET 10, but XtraForm crashes at start-up there
+  (FormIconHelper type initializer, NullReferenceException: 21.2 predates .NET 10), so the target is
+  **net48**.
 
 ## Plan (agreed 20 Nov)
 
