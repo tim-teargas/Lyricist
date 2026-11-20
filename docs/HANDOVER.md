@@ -21,7 +21,8 @@ lyrics and vocals for DumbAngel, repo tim-teargas/DumbAngel).
   Alienation / Isolation, Violence / Death, Religion, Slacker, Love / Relationships, Society /
   Politics, Friends, Drinking, Dream / Narco / Wonder, Seductive World / Glamour, Specific People,
   Upbeat, Other, General Use Phrase), Rating (-> Rating table, Oid 1-5 Crap..Excellent), ConceivedAt,
-  LastReviewedAt, + NexusObject's IsActive, CreatedAt, UpdatedAt. About 4,100 ideas.
+  LastReviewedAt, + NexusObject's IsActive, CreatedAt, UpdatedAt. **1,063 ideas** (Oids reach ~4,100:
+  SQL Server identity-cache jumps after crashes, since fixed by a server setting; gaps are normal).
 - The persistent classes stay in **namespace DumbAngel** with the same names: XPO stores the class
   name in XPObjectType ("DumbAngel.Lyric"). XPO runs with **SchemaAlreadyExists**: it never alters
   the schema. New tables (song drafts) are to be added deliberately.
@@ -52,7 +53,8 @@ lyrics and vocals for DumbAngel, repo tim-teargas/DumbAngel).
   `D:\Program Files (x86)\DevExpress 21.2\Components\Bin` (Framework / NetCore / Standard; for .NET
   builds Data and Xpo are in Standard). Builds on .NET 10, but XtraForm crashes at start-up there
   (FormIconHelper type initializer, NullReferenceException: 21.2 predates .NET 10), so the target is
-  **net48**.
+  **net48**. Tested by Tim 20 Nov: builds and runs, reads all 1,063 ideas. Staying on 4.8 (DevExpress
+  21.2 is all he has a licence for).
 
 ## Plan (agreed 20 Nov)
 
