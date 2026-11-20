@@ -174,6 +174,15 @@ lyrics and vocals for DumbAngel, repo tim-teargas/DumbAngel).
    project (endpoint there) or is static files (separate tiny ASP.NET endpoint). Native MAUI on
    iPhone ruled out (needs a Mac or the paid Apple licence). iCloud Notes route dropped.
 
+## Ideas for later (Tim, 20 Nov)
+
+- **Cut-ups**: Bowie's cut-up technique (from William Burroughs / Brion Gysin: cut lines into
+  fragments and reshuffle them) and his later Verbasizer program, which did it on screen. A
+  Workbench tab could do the same with his ideas: split chosen ideas into phrases, shuffle and
+  recombine, keep the good collisions (to a song or a new idea). Eno's Oblique Strategies cards are
+  a related prompt-for-the-stuck idea. Tim sent his first prompt on 20 Nov: "very interesting
+  results ... very fruitful".
+
 ## Parked: vocal ideas for DumbAngel's audio side (internal synth architecture)
 
 - **Layered retuned vocal** (Tim's proof of concept): live vocal in; up to 3 delayed copies (e.g.
