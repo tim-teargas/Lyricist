@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(LyricistTargetFramework)</TargetFramework>
+    <RootNamespace>Lyricist.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="DevExpress.Data.$(DevExpressVersion)">
+      <HintPath>$(DevExpressBin)\DevExpress.Data.$(DevExpressVersion).dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Xpo.$(DevExpressVersion)">
+      <HintPath>$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- On .NET (not Framework) XPO's SQL Server provider needs the client library as a package. -->
+  <ItemGroup Condition="!$(TargetFramework.StartsWith('net4'))">
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+  </ItemGroup>
+
+</Project>

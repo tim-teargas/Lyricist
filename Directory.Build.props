@@ -1,0 +1,22 @@
+<Project>
+  <!--
+    Shared settings for every project in the solution.
+
+    1. LyricistTargetFramework: the ONE line to change if DevExpress 21.2 misbehaves on .NET 10.
+       net10.0-windows (preferred) or net48 (.NET Framework 4.8, same as the DumbAngel prototype).
+
+    2. DevExpressRoot: where DevExpress 21.2 is installed. Check it matches your machine
+       (your prototype project's DevExpress references show the real path). Directory.Build.targets
+       picks the Framework or NetCore folder under it to suit the target framework. To point
+       straight at a folder instead, set DevExpressBin here.
+  -->
+  <PropertyGroup>
+    <LyricistTargetFramework>net10.0-windows</LyricistTargetFramework>
+    <DevExpressVersion>v21.2</DevExpressVersion>
+    <DevExpressRoot>C:\Program Files\DevExpress 21.2\Components\Bin</DevExpressRoot>
+
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+</Project>

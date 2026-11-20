@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>$(LyricistTargetFramework)</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>Lyricist.Desktop</RootNamespace>
+    <AssemblyName>Lyricist</AssemblyName>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lyricist.Core\Lyricist.Core.csproj" />
+  </ItemGroup>
+
+  <!-- DevExpress 21.2 from the local install (folder set in Directory.Build.props / .targets).
+       Their own dependencies in the same folder are copied to the output automatically. -->
+  <ItemGroup>
+    <Reference Include="DevExpress.Data.$(DevExpressVersion)">
+      <HintPath>$(DevExpressBin)\DevExpress.Data.$(DevExpressVersion).dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Data.Desktop.$(DevExpressVersion)">
+      <HintPath>$(DevExpressBin)\DevExpress.Data.Desktop.$(DevExpressVersion).dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Xpo.$(DevExpressVersion)">
+      <HintPath>$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.$(DevExpressVersion)">
+      <HintPath>$(DevExpressBin)\DevExpress.Utils.$(DevExpressVersion).dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.$(DevExpressVersion)">
+      <HintPath>$(DevExpressBin)\DevExpress.XtraEditors.$(DevExpressVersion).dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.$(DevExpressVersion)">
+      <HintPath>$(DevExpressBin)\DevExpress.XtraGrid.$(DevExpressVersion).dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Printing.$(DevExpressVersion).Core">
+      <HintPath>$(DevExpressBin)\DevExpress.Printing.$(DevExpressVersion).Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

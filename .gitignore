@@ -1,0 +1,7 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+# Local settings (connection string, FTP login) live in %APPDATA%\Lyricist, never in the repo.
+settings.xml

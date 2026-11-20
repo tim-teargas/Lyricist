@@ -1,0 +1,7 @@
+<Project>
+  <!-- DevExpress 21.2 ships separate assemblies for .NET Framework and .NET (Core). -->
+  <PropertyGroup>
+    <DevExpressBin Condition="'$(DevExpressBin)' == '' And $(TargetFramework.StartsWith('net4'))">$(DevExpressRoot)\Framework</DevExpressBin>
+    <DevExpressBin Condition="'$(DevExpressBin)' == ''">$(DevExpressRoot)\NetCore</DevExpressBin>
+  </PropertyGroup>
+</Project>
