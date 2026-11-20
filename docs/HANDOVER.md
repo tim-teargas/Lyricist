@@ -103,19 +103,39 @@ lyrics and vocals for DumbAngel, repo tim-teargas/DumbAngel).
   below, "Show near rhymes too" adds lines that near-rhyme with the family's words
   (`RhymePairs.NearLines`, worked out when a family is picked). Families and recurring words are
   computed with `Task.Run` (the UI stays live; a newer request wins), grids best-fit 100 rows at
-  most, no memo editors.
+  most, no memo editors. Tim: "All working. Great job."
+- **0.4.0 (20 Nov)**: prompt builder + searching from an idea.
+  - `Core/Prompts/PromptBuilder`: `PromptContext` (Ideas, Focus, Description), `PromptOptions`
+    (source, themes, AboutMe = Settings "About me", rhyme scheme, syllables), templates that apply
+    only when their context fits: Theme mining, What song holds these?, Concept expander, Continue a
+    line, Related ideas, Tidy-up. Ideas written "#oid (rating; themes; concept...): text [source]".
+    Theme mining and Tidy-up ask for a fenced ```lyricist JSON block at the end (for a future
+    "Paste result"). `PromptForm`: template box, options, editable text, word count, Copy.
+    Entry points: list Prompt... (the ideas showing, after checkboxes + Find; focus = focused row),
+    idea window Prompt..., Shuffle three Prompt..., Related ideas Prompt... (focus + top 40).
+  - `RelatedIdeas.Find` (Workbench tab "Related ideas"; list right-click Related ideas..., idea
+    window Related...): rhyming line endings (perfect 3 / near 2), shared content words (2 each),
+    synonyms of its words (1 each), 2+ shared themes (1 each); reasons listed. Runs on the UI thread
+    (reads XPO references). `RecurringWords.ContentWords` / `SynonymsOf` now public.
+  - Words window "In your ideas": rhyming line endings, then ideas that use the word anywhere,
+    then ideas using one of its synonyms.
+  - `ILyricHost` (MainForm): AllLyrics, OpenLyric, ShowWords, ShowRelated, ShowPrompt; the idea
+    and Workbench windows take it instead of separate delegates.
+  - Tim (20 Nov): wants to develop **whole songs in free text** (after adding a selection of
+    ideas), then build that into a prompt: song drafts = one free-text box (optional [Verse] etc.
+    headers), ideas pulled in, syllables + rhyme letters beside each line, Prompt. Still to decide:
+    new tables via a SQL script Tim runs, or Lyricist creating only its new tables.
 
 ## Plan (agreed 20 Nov)
 
 1. **Capture** (done, v0.1.0) and the **word panel** (v0.2.0, above).
 2. **Workbench window** (v0.3.0, above).
-3. **Song drafts** (new tables): sections (verse / chorus / bridge), ideas pulled in by Oid,
+3. **Song drafts** (NEXT; new tables): free text (Tim's wish, see 0.4.0), ideas pulled in by Oid,
    rhyme-scheme letters and syllable / stress per line worked out automatically, a rhyme-scheme
-   reference (explain schemes and name songs that use them; never store other songs' lyrics).
-4. **Prompts without the API**: templates (theme mining, collisions, concept expander, continue a
-   line, tidy-up) build a prompt from a filtered selection -> Copy -> Tim pastes into a Claude chat ->
-   optional "Paste result" reads a structured block back (suggested tags, groups, outlines), each
-   change approved. Tim doesn't want the API route.
+   reference (explain schemes and name songs that use them; never store other songs' lyrics),
+   Prompt with the draft and its ideas.
+4. **Prompts without the API** (v0.4.0, above; "Paste result" still to do). Tim doesn't want the
+   API route.
 5. **DumbAngel link**: Lyricist reads DA's prog library (`Documents\DumbAngel2`, JSON) read only; a
    localhost link (DA listens, one JSON message per line) for: audition / run / loop a prog, show it
    in the Progs tab (Lyricist -> DA) and what's playing now: prog, chord, bar / beat, scene, project

@@ -34,6 +34,7 @@ namespace Lyricist.Desktop
             this.sbSettings = new DevExpress.XtraEditors.SimpleButton();
             this.sbWords = new DevExpress.XtraEditors.SimpleButton();
             this.sbWorkbench = new DevExpress.XtraEditors.SimpleButton();
+            this.sbPrompt = new DevExpress.XtraEditors.SimpleButton();
             this.sbRefresh = new DevExpress.XtraEditors.SimpleButton();
             this.pnlFilters = new DevExpress.XtraEditors.PanelControl();
             this.gridControl1 = new DevExpress.XtraGrid.GridControl();
@@ -97,13 +98,22 @@ namespace Lyricist.Desktop
             this.sbWorkbench.Text = "Workbench...";
             this.sbWorkbench.Click += new System.EventHandler(this.sbWorkbench_Click);
             // 
+            // sbPrompt
+            // 
+            this.sbPrompt.Location = new System.Drawing.Point(628, 12);
+            this.sbPrompt.Name = "sbPrompt";
+            this.sbPrompt.Size = new System.Drawing.Size(90, 23);
+            this.sbPrompt.TabIndex = 6;
+            this.sbPrompt.Text = "Prompt...";
+            this.sbPrompt.Click += new System.EventHandler(this.sbPrompt_Click);
+            // 
             // sbRefresh
             // 
             this.sbRefresh.Anchor = (System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right);
             this.sbRefresh.Location = new System.Drawing.Point(1068, 12);
             this.sbRefresh.Name = "sbRefresh";
             this.sbRefresh.Size = new System.Drawing.Size(100, 23);
-            this.sbRefresh.TabIndex = 6;
+            this.sbRefresh.TabIndex = 7;
             this.sbRefresh.Text = "Refresh";
             this.sbRefresh.Click += new System.EventHandler(this.sbRefresh_Click);
             // 
@@ -114,7 +124,7 @@ namespace Lyricist.Desktop
             this.pnlFilters.Name = "pnlFilters";
             this.pnlFilters.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.pnlFilters.Size = new System.Drawing.Size(1156, 58);
-            this.pnlFilters.TabIndex = 7;
+            this.pnlFilters.TabIndex = 8;
             // 
             // gridControl1
             // 
@@ -125,7 +135,7 @@ namespace Lyricist.Desktop
             this.gridControl1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gridView1});
             this.gridControl1.Size = new System.Drawing.Size(1156, 544);
-            this.gridControl1.TabIndex = 8;
+            this.gridControl1.TabIndex = 9;
             // 
             // gridView1
             // 
@@ -149,6 +159,7 @@ namespace Lyricist.Desktop
             this.Controls.Add(this.gridControl1);
             this.Controls.Add(this.pnlFilters);
             this.Controls.Add(this.sbRefresh);
+            this.Controls.Add(this.sbPrompt);
             this.Controls.Add(this.sbWorkbench);
             this.Controls.Add(this.sbWords);
             this.Controls.Add(this.sbSettings);
@@ -174,6 +185,7 @@ namespace Lyricist.Desktop
         private DevExpress.XtraEditors.SimpleButton sbSettings;
         private DevExpress.XtraEditors.SimpleButton sbWords;
         private DevExpress.XtraEditors.SimpleButton sbWorkbench;
+        private DevExpress.XtraEditors.SimpleButton sbPrompt;
         private DevExpress.XtraEditors.SimpleButton sbRefresh;
         private DevExpress.XtraEditors.PanelControl pnlFilters;
         private DevExpress.XtraGrid.GridControl gridControl1;

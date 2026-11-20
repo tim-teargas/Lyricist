@@ -9,12 +9,13 @@ using DevExpress.XtraEditors;
 using DumbAngel;
 using Lyricist.Core;
 using Lyricist.Core.Words;
+using Lyricist.Core.Workbench;
 
 namespace Lyricist.Desktop
 {
     /// <summary>
     /// The word panel: rhymes (perfect / near / vowel only), syllables and stress, synonyms, and
-    /// rhymes already in your ideas. One window, kept open beside the edit forms. UK or US
+    /// your ideas that rhyme with the word, use it, or use one of its synonyms. One window, kept open beside the edit forms. UK or US
     /// pronunciation. Double-click any word in a list (or in the synonyms) to look it up.
     /// </summary>
     public partial class WordsForm : XtraForm
@@ -171,15 +172,25 @@ namespace Lyricist.Desktop
             meSynonyms.Text = text.ToString().TrimEnd();
         }
 
-        /// <summary>Lines in your ideas whose last word rhymes with this word.</summary>
+        /// <summary>
+        /// Your ideas and this word: lines whose last word rhymes with it (perfect, then near), then
+        /// ideas that use the word anywhere, then ideas that use one of its synonyms.
+        /// </summary>
         void ShowIdeas (string word)
         {
             Rhymer rhymer = WordData.RhymerFor (Accent);
-            var found = new List<IdeaItem>();
+            PronouncingDictionary dictionary = WordData.Dictionary;
+            string baseWord = RecurringWords.BaseForm (PronouncingDictionary.Normalise (word).Trim ('\''), dictionary);
+            HashSet<string> synonyms = RecurringWords.SynonymsOf (baseWord, WordData.Thesaurus, dictionary);
+
+            var rhymes = new List<IdeaItem>();
+            var uses = new List<IdeaItem>();
+            var viaSynonyms = new List<IdeaItem>();
             foreach (Lyric lyric in lyrics())
             {
                 if (lyric == null || !lyric.IsActive || string.IsNullOrWhiteSpace (lyric.Text))
                     continue;
+                bool rhymed = false;
                 foreach (string line in lyric.Text.Split (new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     MatchCollection words = wordPattern.Matches (line);
@@ -190,21 +201,39 @@ namespace Lyricist.Desktop
                         continue;
                     RhymeKind kind = rhymer.Compare (word, last);
                     if (kind >= RhymeKind.Near)
-                        found.Add (new IdeaItem (lyric, line.Trim(), kind));
+                    {
+                        rhymes.Add (new IdeaItem (lyric, line.Trim(), kind == RhymeKind.Perfect ? "Rhymes" : "Near rhyme", (int) kind));
+                        rhymed = true;
+                    }
+                }
+                if (rhymed)
+                    continue;
+                HashSet<string> content = RecurringWords.ContentWords (lyric.Text, dictionary);
+                string flat = lyric.Text.Replace ("\r", " ").Replace ("\n", " / ").Trim();
+                if (content.Contains (baseWord))
+                    uses.Add (new IdeaItem (lyric, flat, "Uses it", 0));
+                else
+                {
+                    string synonym = content.FirstOrDefault (synonyms.Contains);
+                    if (synonym != null)
+                        viaSynonyms.Add (new IdeaItem (lyric, flat, "Synonym: " + synonym, 0));
                 }
             }
+
             lbIdeas.BeginUpdate();
             try
             {
                 lbIdeas.Items.Clear();
-                foreach (IdeaItem item in found.OrderByDescending (i => i.Kind).ThenBy (i => i.Line))
+                foreach (IdeaItem item in rhymes.OrderByDescending (i => i.Rank).ThenBy (i => i.Line)
+                                                .Concat (uses.OrderBy (i => i.Line))
+                                                .Concat (viaSynonyms.OrderBy (i => i.Label).ThenBy (i => i.Line)))
                     lbIdeas.Items.Add (item);
             }
             finally
             {
                 lbIdeas.EndUpdate();
             }
-            tpIdeas.Text = $"In your ideas ({found.Count})";
+            tpIdeas.Text = $"In your ideas ({rhymes.Count} rhyme, {uses.Count} use it, {viaSynonyms.Count} synonyms)";
         }
 
         void ShowLine()
@@ -315,17 +344,19 @@ namespace Lyricist.Desktop
 
         sealed class IdeaItem
         {
-            public IdeaItem (Lyric lyric, string line, RhymeKind kind)
+            public IdeaItem (Lyric lyric, string line, string label, int rank)
             {
                 Lyric = lyric;
                 Line = line;
-                Kind = kind;
+                Label = label;
+                Rank = rank;
             }
 
             public Lyric Lyric { get; }
             public string Line { get; }
-            public RhymeKind Kind { get; }
-            public override string ToString() => $"{(Kind == RhymeKind.Perfect ? "Perfect" : "Near")}:  {Line}   (#{Lyric.Oid})";
+            public string Label { get; }
+            public int Rank { get; }
+            public override string ToString() => $"{Label}:  {Line}   (#{Lyric.Oid})";
         }
     }
 }

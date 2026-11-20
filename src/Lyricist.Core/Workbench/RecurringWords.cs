@@ -39,14 +39,8 @@ namespace Lyricist.Core.Workbench
             {
                 if (string.IsNullOrWhiteSpace (lyric?.Text))
                     continue;
-                foreach (Match match in wordPattern.Matches (lyric.Text))
+                foreach (string word in ContentWords (lyric.Text, dictionary))
                 {
-                    string raw = PronouncingDictionary.Normalise (match.Value).Trim ('\'');
-                    if (raw.Length < 3 || stopWords.Contains (raw))   // before BaseForm: "does" isn't "doe"
-                        continue;
-                    string word = BaseForm (raw, dictionary);
-                    if (word.Length < 3 || stopWords.Contains (word))
-                        continue;
                     if (!uses.TryGetValue (word, out HashSet<Lyric> set))
                         uses[word] = set = new HashSet<Lyric>();
                     set.Add (lyric);
@@ -60,7 +54,7 @@ namespace Lyricist.Core.Workbench
                 var all = new HashSet<Lyric> (entry.Value);
                 if (thesaurus != null)
                 {
-                    foreach (string synonym in Synonyms (entry.Key, thesaurus, dictionary))
+                    foreach (string synonym in SynonymsOf (entry.Key, thesaurus, dictionary))
                         if (uses.TryGetValue (synonym, out HashSet<Lyric> more))
                         {
                             count.Synonyms.Add (synonym);
@@ -80,8 +74,24 @@ namespace Lyricist.Core.Workbench
                          .ToList();
         }
 
+        /// <summary>The meaningful words of a text, in base form (little words left out), each once.</summary>
+        public static HashSet<string> ContentWords (string text, PronouncingDictionary dictionary)
+        {
+            var words = new HashSet<string> (StringComparer.Ordinal);
+            foreach (Match match in wordPattern.Matches (text ?? ""))
+            {
+                string raw = PronouncingDictionary.Normalise (match.Value).Trim ('\'');
+                if (raw.Length < 3 || stopWords.Contains (raw))   // before BaseForm: "does" isn't "doe"
+                    continue;
+                string word = BaseForm (raw, dictionary);
+                if (word.Length >= 3 && !stopWords.Contains (word))
+                    words.Add (word);
+            }
+            return words;
+        }
+
         /// <summary>Plain one-word synonyms (no "(generic term)" etc.), in their base forms.</summary>
-        static IEnumerable<string> Synonyms (string word, Thesaurus thesaurus, PronouncingDictionary dictionary)
+        public static HashSet<string> SynonymsOf (string word, Thesaurus thesaurus, PronouncingDictionary dictionary)
         {
             var found = new HashSet<string> (StringComparer.Ordinal);
             foreach (Meaning meaning in thesaurus.Lookup (word))

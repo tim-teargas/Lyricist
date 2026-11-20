@@ -25,21 +25,19 @@ namespace Lyricist.Desktop
     public partial class WorkbenchForm : XtraForm
     {
         readonly AppSettings settings;
-        readonly Func<IEnumerable<Lyric>> allLyrics;
-        readonly Action<Lyric> openLyric;
+        readonly ILyricHost host;
         readonly FlagFilterControl filter = new FlagFilterControl { Dock = DockStyle.Fill };
         readonly Random random = new Random();
         readonly Lyric[] shuffled = new Lyric[3];
         readonly HashSet<XtraTabPageKey> stale = new HashSet<XtraTabPageKey>();
 
-        enum XtraTabPageKey { Pairs, Shuffle, Review, Words }
+        enum XtraTabPageKey { Pairs, Shuffle, Review, Words, Related }
 
-        public WorkbenchForm (AppSettings settings, Func<IEnumerable<Lyric>> lyrics, Action<Lyric> openLyric)
+        public WorkbenchForm (AppSettings settings, ILyricHost host)
         {
             InitializeComponent();
             this.settings = settings;
-            allLyrics = lyrics;
-            this.openLyric = openLyric;
+            this.host = host;
 
             pnlFilter.Controls.Add (filter);
             filter.FilterChanged += (s, e) => MarkAllStale();
@@ -59,7 +57,9 @@ namespace Lyricist.Desktop
         Accent Accent => Convert.ToInt32 (rgAccent.EditValue) == 1 ? Accent.US : Accent.UK;
 
         /// <summary>Active ideas passing the flag filter.</summary>
-        List<Lyric> Lyrics() => allLyrics().Where (l => l != null && l.IsActive && filter.Matches (l)).ToList();
+        void openLyric (Lyric lyric) => host.OpenLyric (lyric);
+
+        List<Lyric> Lyrics() => host.AllLyrics.Where (l => l != null && l.IsActive && filter.Matches (l)).ToList();
 
         protected override void OnLoad (EventArgs e)
         {
@@ -93,6 +93,7 @@ namespace Lyricist.Desktop
             tabWork.SelectedTabPage == tpShuffle ? XtraTabPageKey.Shuffle
           : tabWork.SelectedTabPage == tpReview ? XtraTabPageKey.Review
           : tabWork.SelectedTabPage == tpWords ? XtraTabPageKey.Words
+          : tabWork.SelectedTabPage == tpRelated ? XtraTabPageKey.Related
           : XtraTabPageKey.Pairs;
 
         /// <summary>Recomputes the tab on show only when its inputs changed.</summary>
@@ -107,6 +108,7 @@ namespace Lyricist.Desktop
                 case XtraTabPageKey.Shuffle: Shuffle (keepLocked: true); break;
                 case XtraTabPageKey.Review: ShowReview(); break;
                 case XtraTabPageKey.Words: ShowWords(); break;
+                case XtraTabPageKey.Related: ShowRelatedIdeas(); break;
             }
         }
 
@@ -253,6 +255,14 @@ namespace Lyricist.Desktop
 
         void sbShuffle_Click (object sender, EventArgs e) => Shuffle (keepLocked: true);
 
+        void sbShufflePrompt_Click (object sender, EventArgs e)
+        {
+            var ideas = shuffled.Where (l => l != null).ToList();
+            if (ideas.Count < 2)
+                return;
+            host.ShowPrompt (new Lyricist.Core.Prompts.PromptContext { Ideas = ideas, Description = "picked at random" });
+        }
+
         void sbOpen_Click (object sender, EventArgs e)
         {
             int i = Array.IndexOf (OpenButtons, sender);
@@ -356,6 +366,63 @@ namespace Lyricist.Desktop
         }
 
         // ---------------------------------------------------------------------------------
+        // Related ideas
+
+        Lyric relatedFocus;
+        List<RelatedIdea> related = new List<RelatedIdea>();
+
+        /// <summary>Shows the ideas related to this one (from the list's right-click or an idea's window).</summary>
+        public void ShowRelated (Lyric lyric)
+        {
+            relatedFocus = lyric;
+            stale.Add (XtraTabPageKey.Related);
+            if (tabWork.SelectedTabPage == tpRelated)
+                RefreshCurrent();
+            else
+                tabWork.SelectedTabPage = tpRelated;   // SelectedPageChanged refreshes it
+        }
+
+        void ShowRelatedIdeas()
+        {
+            if (relatedFocus == null)
+                return;
+            lblRelated.Text = "Working it out (the first time also loads the word data)...";
+            Update();
+            Busy (() =>
+            {
+                // On this thread: XPO objects (ratings, flags) aren't safe to read from another one.
+                related = RelatedIdeas.Find (relatedFocus, Lyrics(), WordData.RhymerFor (Accent),
+                                             WordData.Dictionary, WordData.Thesaurus);
+                gcRelated.DataSource = related.Select (r => new RelatedRow (r)).ToList();
+                ConfigureColumns (gvRelated);
+                string focusText = (relatedFocus.Text ?? "").Replace ("\r", " ").Replace ("\n", " / ");
+                lblRelated.Text = $"{related.Count} ideas related to #{relatedFocus.Oid}: {focusText}{FilterNote}";
+            });
+        }
+
+        void gvRelated_DoubleClick (object sender, EventArgs e)
+        {
+            var view = (GridView) sender;
+            GridHitInfo hit = view.CalcHitInfo (view.GridControl.PointToClient (MousePosition));
+            if (hit.InRow && view.GetRow (hit.RowHandle) is RelatedRow row)
+                openLyric (row.Data.Lyric);
+        }
+
+        void sbRelatedPrompt_Click (object sender, EventArgs e)
+        {
+            if (relatedFocus == null)
+                return;
+            var ideas = new List<Lyric> { relatedFocus };
+            ideas.AddRange (related.Take (40).Select (r => r.Lyric));
+            host.ShowPrompt (new Lyricist.Core.Prompts.PromptContext
+            {
+                Focus = relatedFocus,
+                Ideas = ideas,
+                Description = "found by rhyme, shared words, synonyms and themes",
+            });
+        }
+
+        // ---------------------------------------------------------------------------------
 
         /// <summary>Columns come from the row class; this tidies them once they exist.</summary>
         static void ConfigureColumns (GridView view)
@@ -382,6 +449,17 @@ namespace Lyricist.Desktop
             [DisplayName ("Words")] public string Words => string.Join (", ", Family.Words);
             [DisplayName ("Different words")] public int DifferentWords => Family.Words.Count;
             [DisplayName ("Ideas")] public int Ideas => Family.Ideas;
+        }
+
+        public sealed class RelatedRow
+        {
+            internal RelatedRow (RelatedIdea data) { Data = data; }
+
+            [Browsable (false)] public RelatedIdea Data { get; }
+            [DisplayName ("Score")] public int Score => Data.Score;
+            [DisplayName ("Idea")] public string Text => (Data.Lyric.Text ?? "").Replace ("\r", " ").Replace ("\n", " / ");
+            [DisplayName ("Why")] public string Why => Data.ReasonText;
+            [DisplayName ("Rating")] public string Rating => Data.Lyric.Rating?.Title ?? "";
         }
 
         sealed class LineItem

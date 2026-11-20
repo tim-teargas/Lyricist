@@ -17,17 +17,17 @@ namespace Lyricist.Desktop
 
         readonly Lyric lyric;
         readonly AppSettings settings;
-        readonly Action<string, string, bool> showWords;   // (word, line, onlyIfOpen): MainForm.ShowWords
+        readonly ILyricHost host;
 
         /// <summary>True once the lyric has been saved (OK or Apply).</summary>
         public bool Saved { get; private set; }
 
-        public LyricEditForm (Lyric lyric, AppSettings settings, Action<string, string, bool> showWords)
+        public LyricEditForm (Lyric lyric, AppSettings settings, ILyricHost host)
         {
             InitializeComponent();
             this.lyric = lyric;
             this.settings = settings;
-            this.showWords = showWords;
+            this.host = host;
             // Double-click a word: it's selected as usual, and looked up if the Words window is open.
             meText.DoubleClick += (s, e) => BeginInvoke ((Action) (() => SendToWords (onlyIfOpen: true)));
         }
@@ -212,7 +212,7 @@ namespace Lyricist.Desktop
         {
             string word = WordAtCursor();
             if (word.Length > 0)
-                showWords (word, CurrentLine(), onlyIfOpen);
+                host.ShowWords (word, CurrentLine(), onlyIfOpen);
             else if (!onlyIfOpen)
                 Ui.Info ("Put the cursor on a word in the text first.");
         }
@@ -299,5 +299,22 @@ namespace Lyricist.Desktop
         void sbSynonyms_Click (object sender, EventArgs e) => SendToWords (onlyIfOpen: false);
 
         void sbRhymes_Click (object sender, EventArgs e) => SendToWords (onlyIfOpen: false);
+
+        void sbRelated_Click (object sender, EventArgs e)
+        {
+            if (lyric.HasBeenSaved)
+                host.ShowRelated (lyric);
+            else
+                Ui.Info ("Save the idea first (Apply), then look for related ones.");
+        }
+
+        /// <summary>A prompt about this idea (as saved: Apply first to include changes).</summary>
+        void sbPrompt_Click (object sender, EventArgs e) =>
+            host.ShowPrompt (new Lyricist.Core.Prompts.PromptContext
+            {
+                Focus = lyric,
+                Ideas = new System.Collections.Generic.List<Lyric> { lyric },
+                Description = "",
+            });
     }
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using System.Windows.Forms;
 using DevExpress.Data;
@@ -12,6 +14,7 @@ using DevExpress.XtraGrid.Views.Grid;
 using DevExpress.XtraGrid.Views.Grid.ViewInfo;
 using DumbAngel;
 using Lyricist.Core;
+using Lyricist.Core.Prompts;
 
 namespace Lyricist.Desktop
 {
@@ -21,13 +24,13 @@ namespace Lyricist.Desktop
     /// (right-click a column header). Column layout, sorting and filters are remembered.
     /// Lyrics open in their own windows (several at once), beside the Words window.
     /// </summary>
-    public partial class MainForm : XtraForm
+    public partial class MainForm : XtraForm, ILyricHost
     {
         readonly AppSettings settings;
         readonly Session session = new Session();   // uses XpoDefault.DataLayer (Database.Connect)
         XPCollection<Lyric> lyrics;
-        readonly System.Collections.Generic.Dictionary<int, LyricEditForm> openForms =
-            new System.Collections.Generic.Dictionary<int, LyricEditForm>();   // by Oid (saved lyrics)
+        readonly Dictionary<int, LyricEditForm> openForms =
+            new Dictionary<int, LyricEditForm>();   // by Oid (saved lyrics)
         WordsForm words;
         WorkbenchForm workbench;
         FlagFilterControl filter;
@@ -175,7 +178,7 @@ namespace Lyricist.Desktop
                     }
                 }
 
-                var form = new LyricEditForm (lyric, settings, ShowWords);
+                var form = new LyricEditForm (lyric, settings, this);
                 int oid = lyric.Oid;
                 if (!isNew)
                     openForms[oid] = form;
@@ -227,6 +230,41 @@ namespace Lyricist.Desktop
             }
         }
 
+        // ---------------------------------------------------------------------------------
+        // ILyricHost (for the other windows)
+
+        public IEnumerable<Lyric> AllLyrics => lyrics ?? Enumerable.Empty<Lyric>();
+
+        public void OpenLyric (Lyric lyric) => Edit (lyric);
+
+        public void ShowRelated (Lyric lyric)
+        {
+            ShowWorkbench();
+            workbench?.ShowRelated (lyric);
+        }
+
+        public void ShowPrompt (PromptContext context)
+        {
+            try
+            {
+                new PromptForm (settings, context).Show (this);
+            }
+            catch (Exception ex)
+            {
+                Ui.Error ("Problem building the prompt.", ex);
+            }
+        }
+
+        /// <summary>The ideas showing in the list now (after the checkboxes and the Find box).</summary>
+        List<Lyric> VisibleLyrics()
+        {
+            var visible = new List<Lyric>();
+            for (int handle = 0; handle < gridView1.RowCount; handle++)
+                if (gridView1.GetRow (handle) is Lyric lyric)
+                    visible.Add (lyric);
+            return visible;
+        }
+
         Lyric FocusedLyric => gridView1.GetRow (gridView1.FocusedRowHandle) as Lyric;
 
         // ---------------------------------------------------------------------------------
@@ -262,6 +300,7 @@ namespace Lyricist.Desktop
                 return;
 
             e.Menu.Items.Add (new DXMenuItem ("Edit...", (s, a) => Edit (lyric)));
+            e.Menu.Items.Add (new DXMenuItem ("Related ideas...", (s, a) => ShowRelated (lyric)));
             e.Menu.Items.Add (new DXMenuItem ("Delete...", (s, a) => Delete (lyric)) { BeginGroup = true });
         }
 
@@ -345,13 +384,15 @@ namespace Lyricist.Desktop
         void sbWords_Click (object sender, EventArgs e) =>
             ShowWords (FocusedLyric?.Text ?? "", null, false);
 
-        void sbWorkbench_Click (object sender, EventArgs e)
+        void sbWorkbench_Click (object sender, EventArgs e) => ShowWorkbench();
+
+        void ShowWorkbench()
         {
             try
             {
                 if (workbench == null || workbench.IsDisposed)
                 {
-                    workbench = new WorkbenchForm (settings, () => lyrics, Edit);
+                    workbench = new WorkbenchForm (settings, this);
                     workbench.Show (this);
                 }
                 else
@@ -365,6 +406,22 @@ namespace Lyricist.Desktop
             {
                 Ui.Error ("Problem opening the Workbench.", ex);
             }
+        }
+
+        void sbPrompt_Click (object sender, EventArgs e)
+        {
+            List<Lyric> visible = VisibleLyrics();
+            var parts = new List<string>();
+            if (filter.Any)
+                parts.Add ("tagged " + filter.Description);
+            if (!string.IsNullOrWhiteSpace (gridView1.FindFilterText))
+                parts.Add ("containing \"" + gridView1.FindFilterText + "\"");
+            ShowPrompt (new PromptContext
+            {
+                Ideas = visible,
+                Focus = FocusedLyric,
+                Description = parts.Count > 0 ? string.Join (", ", parts) : (visible.Count == lyrics.Count ? "all of them" : ""),
+            });
         }
 
         void sbSettings_Click (object sender, EventArgs e)

@@ -31,6 +31,7 @@ namespace Lyricist.Desktop
             teFtpArchiveDir.Text = settings.FtpArchiveDir;
             teDownloadDir.Text = settings.DownloadDir;
             teNewIdeaSource.Text = settings.NewIdeaSource;
+            meAboutMe.Text = settings.PromptAboutMe;
             if (string.IsNullOrWhiteSpace (settings.ConnectionString))
                 lblTestResult.Text = "Paste the prototype's XPO connection string, then Test.";
         }
@@ -62,6 +63,7 @@ namespace Lyricist.Desktop
             settings.FtpArchiveDir = teFtpArchiveDir.Text.Trim();
             settings.DownloadDir = teDownloadDir.Text.Trim();
             settings.NewIdeaSource = teNewIdeaSource.Text;
+            settings.PromptAboutMe = meAboutMe.Text;
             try
             {
                 settings.Save();

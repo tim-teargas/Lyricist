@@ -28,6 +28,12 @@ namespace Lyricist.Core
         public string LastConceivedText { get; set; } = "";
         public string LastSourceInfo { get; set; } = "";
 
+        // Prompts
+        /// <summary>Tim's own words about himself and how he writes: the top of every prompt.</summary>
+        public string PromptAboutMe { get; set; } = "";
+        public bool PromptIncludeSource { get; set; } = true;
+        public bool PromptIncludeThemes { get; set; } = true;
+
         // Words window
         public string Accent { get; set; } = "UK";   // "UK" / "US"
         public bool IncludeRareWords { get; set; }

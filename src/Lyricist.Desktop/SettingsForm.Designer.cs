@@ -46,6 +46,8 @@ namespace Lyricist.Desktop
             this.teDownloadDir = new DevExpress.XtraEditors.TextEdit();
             this.lblNewIdeaSource = new DevExpress.XtraEditors.LabelControl();
             this.teNewIdeaSource = new DevExpress.XtraEditors.TextEdit();
+            this.lblAboutMe = new DevExpress.XtraEditors.LabelControl();
+            this.meAboutMe = new DevExpress.XtraEditors.MemoEdit();
             this.sbOK = new DevExpress.XtraEditors.SimpleButton();
             this.sbCancel = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)(this.meConnection.Properties)).BeginInit();
@@ -56,6 +58,7 @@ namespace Lyricist.Desktop
             ((System.ComponentModel.ISupportInitialize)(this.teFtpArchiveDir.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.teDownloadDir.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.teNewIdeaSource.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.meAboutMe.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // lblConnection
@@ -196,23 +199,38 @@ namespace Lyricist.Desktop
             this.teNewIdeaSource.Size = new System.Drawing.Size(418, 20);
             this.teNewIdeaSource.TabIndex = 17;
             // 
+            // lblAboutMe
+            // 
+            this.lblAboutMe.Location = new System.Drawing.Point(12, 345);
+            this.lblAboutMe.Name = "lblAboutMe";
+            this.lblAboutMe.TabIndex = 18;
+            this.lblAboutMe.Text = "About me and how I write (goes at the top of every prompt; optional):";
+            // 
+            // meAboutMe
+            // 
+            this.meAboutMe.Anchor = (System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right);
+            this.meAboutMe.Location = new System.Drawing.Point(12, 364);
+            this.meAboutMe.Name = "meAboutMe";
+            this.meAboutMe.Size = new System.Drawing.Size(556, 90);
+            this.meAboutMe.TabIndex = 19;
+            // 
             // sbOK
             // 
             this.sbOK.Anchor = (System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
-            this.sbOK.Location = new System.Drawing.Point(382, 355);
+            this.sbOK.Location = new System.Drawing.Point(382, 470);
             this.sbOK.Name = "sbOK";
             this.sbOK.Size = new System.Drawing.Size(90, 23);
-            this.sbOK.TabIndex = 18;
+            this.sbOK.TabIndex = 20;
             this.sbOK.Text = "OK";
             this.sbOK.Click += new System.EventHandler(this.sbOK_Click);
             // 
             // sbCancel
             // 
             this.sbCancel.Anchor = (System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
-            this.sbCancel.Location = new System.Drawing.Point(478, 355);
+            this.sbCancel.Location = new System.Drawing.Point(478, 470);
             this.sbCancel.Name = "sbCancel";
             this.sbCancel.Size = new System.Drawing.Size(90, 23);
-            this.sbCancel.TabIndex = 19;
+            this.sbCancel.TabIndex = 21;
             this.sbCancel.Text = "Cancel";
             this.sbCancel.Click += new System.EventHandler(this.sbCancel_Click);
             // 
@@ -220,9 +238,11 @@ namespace Lyricist.Desktop
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(580, 390);
+            this.ClientSize = new System.Drawing.Size(580, 505);
             this.Controls.Add(this.sbCancel);
             this.Controls.Add(this.sbOK);
+            this.Controls.Add(this.meAboutMe);
+            this.Controls.Add(this.lblAboutMe);
             this.Controls.Add(this.teNewIdeaSource);
             this.Controls.Add(this.lblNewIdeaSource);
             this.Controls.Add(this.teDownloadDir);
@@ -256,6 +276,7 @@ namespace Lyricist.Desktop
             ((System.ComponentModel.ISupportInitialize)(this.teFtpArchiveDir.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.teDownloadDir.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.teNewIdeaSource.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.meAboutMe.Properties)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -281,6 +302,8 @@ namespace Lyricist.Desktop
         private DevExpress.XtraEditors.TextEdit teDownloadDir;
         private DevExpress.XtraEditors.LabelControl lblNewIdeaSource;
         private DevExpress.XtraEditors.TextEdit teNewIdeaSource;
+        private DevExpress.XtraEditors.LabelControl lblAboutMe;
+        private DevExpress.XtraEditors.MemoEdit meAboutMe;
         private DevExpress.XtraEditors.SimpleButton sbOK;
         private DevExpress.XtraEditors.SimpleButton sbCancel;
     }

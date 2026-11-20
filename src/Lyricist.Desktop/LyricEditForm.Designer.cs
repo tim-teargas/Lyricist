@@ -72,6 +72,8 @@ namespace Lyricist.Desktop
             this.ceIsUpbeat = new DevExpress.XtraEditors.CheckEdit();
             this.ceIsOther = new DevExpress.XtraEditors.CheckEdit();
             this.ceIsGeneral = new DevExpress.XtraEditors.CheckEdit();
+            this.sbRelated = new DevExpress.XtraEditors.SimpleButton();
+            this.sbPrompt = new DevExpress.XtraEditors.SimpleButton();
             this.lblInfo = new DevExpress.XtraEditors.LabelControl();
             this.sbOK = new DevExpress.XtraEditors.SimpleButton();
             this.sbApply = new DevExpress.XtraEditors.SimpleButton();
@@ -493,12 +495,32 @@ namespace Lyricist.Desktop
             this.ceIsGeneral.TabIndex = 43;
             this.ceIsGeneral.Properties.Caption = "General Use Phrase";
             // 
+            // sbRelated
+            // 
+            this.sbRelated.Anchor = (System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left);
+            this.sbRelated.Location = new System.Drawing.Point(12, 658);
+            this.sbRelated.Name = "sbRelated";
+            this.sbRelated.Size = new System.Drawing.Size(100, 23);
+            this.sbRelated.TabIndex = 44;
+            this.sbRelated.Text = "Related...";
+            this.sbRelated.Click += new System.EventHandler(this.sbRelated_Click);
+            // 
+            // sbPrompt
+            // 
+            this.sbPrompt.Anchor = (System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left);
+            this.sbPrompt.Location = new System.Drawing.Point(118, 658);
+            this.sbPrompt.Name = "sbPrompt";
+            this.sbPrompt.Size = new System.Drawing.Size(100, 23);
+            this.sbPrompt.TabIndex = 45;
+            this.sbPrompt.Text = "Prompt...";
+            this.sbPrompt.Click += new System.EventHandler(this.sbPrompt_Click);
+            // 
             // lblInfo
             // 
             this.lblInfo.Anchor = (System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left);
-            this.lblInfo.Location = new System.Drawing.Point(12, 664);
+            this.lblInfo.Location = new System.Drawing.Point(230, 664);
             this.lblInfo.Name = "lblInfo";
-            this.lblInfo.TabIndex = 44;
+            this.lblInfo.TabIndex = 46;
             this.lblInfo.Text = "";
             // 
             // sbOK
@@ -507,7 +529,7 @@ namespace Lyricist.Desktop
             this.sbOK.Location = new System.Drawing.Point(608, 658);
             this.sbOK.Name = "sbOK";
             this.sbOK.Size = new System.Drawing.Size(90, 23);
-            this.sbOK.TabIndex = 45;
+            this.sbOK.TabIndex = 47;
             this.sbOK.Text = "OK";
             this.sbOK.Click += new System.EventHandler(this.sbOK_Click);
             // 
@@ -517,7 +539,7 @@ namespace Lyricist.Desktop
             this.sbApply.Location = new System.Drawing.Point(703, 658);
             this.sbApply.Name = "sbApply";
             this.sbApply.Size = new System.Drawing.Size(90, 23);
-            this.sbApply.TabIndex = 46;
+            this.sbApply.TabIndex = 48;
             this.sbApply.Text = "Apply";
             this.sbApply.Click += new System.EventHandler(this.sbApply_Click);
             // 
@@ -527,7 +549,7 @@ namespace Lyricist.Desktop
             this.sbCancel.Location = new System.Drawing.Point(798, 658);
             this.sbCancel.Name = "sbCancel";
             this.sbCancel.Size = new System.Drawing.Size(90, 23);
-            this.sbCancel.TabIndex = 47;
+            this.sbCancel.TabIndex = 49;
             this.sbCancel.Text = "Cancel";
             this.sbCancel.Click += new System.EventHandler(this.sbCancel_Click);
             // 
@@ -540,6 +562,8 @@ namespace Lyricist.Desktop
             this.Controls.Add(this.sbApply);
             this.Controls.Add(this.sbOK);
             this.Controls.Add(this.lblInfo);
+            this.Controls.Add(this.sbPrompt);
+            this.Controls.Add(this.sbRelated);
             this.Controls.Add(this.ceIsGeneral);
             this.Controls.Add(this.ceIsOther);
             this.Controls.Add(this.ceIsUpbeat);
@@ -668,6 +692,8 @@ namespace Lyricist.Desktop
         private DevExpress.XtraEditors.CheckEdit ceIsUpbeat;
         private DevExpress.XtraEditors.CheckEdit ceIsOther;
         private DevExpress.XtraEditors.CheckEdit ceIsGeneral;
+        private DevExpress.XtraEditors.SimpleButton sbRelated;
+        private DevExpress.XtraEditors.SimpleButton sbPrompt;
         private DevExpress.XtraEditors.LabelControl lblInfo;
         private DevExpress.XtraEditors.SimpleButton sbOK;
         private DevExpress.XtraEditors.SimpleButton sbApply;
