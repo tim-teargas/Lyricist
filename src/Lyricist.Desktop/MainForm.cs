@@ -29,6 +29,8 @@ namespace Lyricist.Desktop
         readonly System.Collections.Generic.Dictionary<int, LyricEditForm> openForms =
             new System.Collections.Generic.Dictionary<int, LyricEditForm>();   // by Oid (saved lyrics)
         WordsForm words;
+        WorkbenchForm workbench;
+        FlagFilterControl filter;
 
         static string GridLayoutPath => Path.Combine (AppSettings.Folder, "grid-layout.xml");
 
@@ -43,6 +45,10 @@ namespace Lyricist.Desktop
             base.OnLoad (e);
             try
             {
+                filter = new FlagFilterControl { Dock = DockStyle.Fill };
+                pnlFilters.Controls.Add (filter);
+                filter.FilterChanged += (s, a) => gridView1.RefreshData();
+
                 BuildColumns();
                 lyrics = new XPCollection<Lyric> (session);
                 gridControl1.DataSource = lyrics;
@@ -157,7 +163,17 @@ namespace Lyricist.Desktop
 
                 bool isNew = !lyric.HasBeenSaved;
                 if (!isNew)
+                {
                     lyric.Reload();   // pick up changes made elsewhere since the list loaded
+                    try
+                    {
+                        lyric.MarkReviewed();   // opening it counts as reviewing it (UpdatedAt untouched)
+                    }
+                    catch (Exception ex)
+                    {
+                        Ui.Log (ex);   // e.g. changed elsewhere a moment ago: not worth stopping for
+                    }
+                }
 
                 var form = new LyricEditForm (lyric, settings, ShowWords);
                 int oid = lyric.Oid;
@@ -222,6 +238,18 @@ namespace Lyricist.Desktop
             GridHitInfo info = view.CalcHitInfo (view.GridControl.PointToClient (Control.MousePosition));
             if ((info.InRow || info.InRowCell) && view.GetRow (info.RowHandle) is Lyric lyric)
                 Edit (lyric);
+        }
+
+        /// <summary>The flag checkboxes: ticked flags must all be set (AND).</summary>
+        void gridView1_CustomRowFilter (object sender, DevExpress.XtraGrid.Views.Base.RowFilterEventArgs e)
+        {
+            if (filter == null || !filter.Any || e.ListSourceRow < 0 || e.ListSourceRow >= lyrics.Count)
+                return;
+            if (!filter.Matches (lyrics[e.ListSourceRow]))
+            {
+                e.Visible = false;
+                e.Handled = true;
+            }
         }
 
         void gridView1_PopupMenuShowing (object sender, PopupMenuShowingEventArgs e)
@@ -316,6 +344,28 @@ namespace Lyricist.Desktop
 
         void sbWords_Click (object sender, EventArgs e) =>
             ShowWords (FocusedLyric?.Text ?? "", null, false);
+
+        void sbWorkbench_Click (object sender, EventArgs e)
+        {
+            try
+            {
+                if (workbench == null || workbench.IsDisposed)
+                {
+                    workbench = new WorkbenchForm (settings, () => lyrics, Edit);
+                    workbench.Show (this);
+                }
+                else
+                {
+                    if (workbench.WindowState == FormWindowState.Minimized)
+                        workbench.WindowState = FormWindowState.Normal;
+                    workbench.Activate();
+                }
+            }
+            catch (Exception ex)
+            {
+                Ui.Error ("Problem opening the Workbench.", ex);
+            }
+        }
 
         void sbSettings_Click (object sender, EventArgs e)
         {

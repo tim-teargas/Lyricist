@@ -21,6 +21,25 @@ namespace DumbAngel   // kept for XPO's type records: see NexusObject.cs
             LastReviewedAt = DateTime.Now;
         }
 
+        // Not persisted (private field, no attribute): set only while MarkReviewed saves.
+        bool reviewOnly;
+        protected override bool KeepUpdatedAt => reviewOnly;
+
+        /// <summary>Stamps LastReviewedAt and saves it, without counting as an edit (UpdatedAt stays).</summary>
+        public void MarkReviewed()
+        {
+            reviewOnly = true;
+            try
+            {
+                LastReviewedAt = DateTime.Now;
+                Save();
+            }
+            finally
+            {
+                reviewOnly = false;
+            }
+        }
+
         string uniqueRef;
         public string UniqueRef
         {

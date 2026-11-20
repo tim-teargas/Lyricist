@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Lyricist.Core
 {
@@ -29,6 +30,13 @@ namespace Lyricist.Core
             new LyricFlag ("IsConcept", "Concept / Title", "Concept"),
             new LyricFlag ("IsNotLyric", "Not Lyric", "Not Lyric"),
         };
+
+        /// <summary>Kinds then themes.</summary>
+        public static IEnumerable<LyricFlag> All => Kinds.Concat (Themes);
+
+        /// <summary>True when the lyric has the flag (a "not sure" null counts as no).</summary>
+        public static bool IsSet (DumbAngel.Lyric lyric, LyricFlag flag) =>
+            lyric.GetMemberValue (flag.Property) is bool value && value;
 
         /// <summary>What it's about: the 15 themes.</summary>
         public static readonly IReadOnlyList<LyricFlag> Themes = new[]

@@ -103,6 +103,10 @@ namespace Lyricist.Core.Words
             return result;
         }
 
+        /// <summary>The word's "same vowels" keys (one per pronunciation): words that can rhyme share one.</summary>
+        public IEnumerable<string> VowelKeys (string word) =>
+            dictionary.Lookup (word, accent).Select (VowelKey).Where (k => k != null).Distinct();
+
         /// <summary>How two words rhyme (best over their pronunciations).</summary>
         public RhymeKind Compare (string a, string b)
         {

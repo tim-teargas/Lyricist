@@ -35,8 +35,12 @@ namespace DumbAngel
             DateTime now = DateTime.Now;
             if (Session.IsNewObject (this))
                 CreatedAt = now;
-            UpdatedAt = now;
+            if (!KeepUpdatedAt)
+                UpdatedAt = now;
         }
+
+        /// <summary>True while saving something that isn't an edit (e.g. a "reviewed" time stamp).</summary>
+        protected virtual bool KeepUpdatedAt => false;
 
         bool isActive;
         public bool IsActive

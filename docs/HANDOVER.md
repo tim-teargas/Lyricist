@@ -79,12 +79,27 @@ lyrics and vocals for DumbAngel, repo tim-teargas/DumbAngel).
 - **0.2.1**: global error handler (`Ui.Unhandled`: ThreadException / UnhandledException, shown and
   logged to `%APPDATA%\Lyricist\errors.log`; `Ui.Error` logs too); default font 9.75
   (`WindowsFormsSettings.DefaultFont`, forms auto-scale) at Tim's request.
+- **0.3.0 (20 Nov, evening)**: Tim's requests after 0.2.x + the Workbench (stage 2). Not yet built.
+  - **Reviewed = opened** (Tim): `MainForm.Edit` calls `Lyric.MarkReviewed()` for saved ideas: stamps
+    LastReviewedAt and saves without touching UpdatedAt (`NexusObject.KeepUpdatedAt`).
+  - **Flag filter checkboxes** (Tim: no more adding a column to filter): `FlagFilterControl` (code-built
+    from `LyricFlags.All`, FlowLayoutPanel, tick = must be set, several = AND, Clear) in the list's
+    `pnlFilters`, applied with `gridView1.CustomRowFilter` (the XPCollection stays unfiltered: the
+    Words / Workbench windows read it too). The same control filters every Workbench tab.
+  - **Workbench** (`WorkbenchForm`, list button Workbench..., modeless): tabs Rhyme pairs
+    (`Core/Workbench/RhymePairs`: each line of each active idea, last word; compared within "same
+    vowels" groups; same idea / same word skipped; perfect, optional near; UK / US; double-click the
+    first / second column opens that idea), Shuffle three (Lock, Open, Shuffle), Review queue
+    (oldest LastReviewedAt first; Open the next one; refreshed when the window is re-activated),
+    Recurring words (`RecurringWords`: ideas per word, stop words out but thematic ones kept, plural /
+    -ing / -ed folded to a known base word; "Count synonyms too" adds ideas using the word's one-word
+    thesaurus synonyms, not chained; ideas list below). Tabs recompute only when stale.
+  - Tim on rhyme pairs: some idea texts aren't one line per lyric line; see how it goes.
 
 ## Plan (agreed 20 Nov)
 
 1. **Capture** (done, v0.1.0) and the **word panel** (v0.2.0, above).
-2. **Workbench window**: rhyme pairs across the whole collection (ready-made couplets), "shuffle
-   three" collisions with filters, review queue (oldest LastReviewedAt), recurring words.
+2. **Workbench window** (v0.3.0, above).
 3. **Song drafts** (new tables): sections (verse / chorus / bridge), ideas pulled in by Oid,
    rhyme-scheme letters and syllable / stress per line worked out automatically, a rhyme-scheme
    reference (explain schemes and name songs that use them; never store other songs' lyrics).
