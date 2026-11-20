@@ -4,4 +4,10 @@
     <DevExpressBin Condition="'$(DevExpressBin)' == '' And $(TargetFramework.StartsWith('net4'))">$(DevExpressRoot)\Framework</DevExpressBin>
     <DevExpressBin Condition="'$(DevExpressBin)' == ''">$(DevExpressRoot)\NetCore</DevExpressBin>
   </PropertyGroup>
+
+  <!-- Stop with a clear message rather than a page of "DevExpress could not be found" errors. -->
+  <Target Name="CheckDevExpressFolder" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(DevExpressBin)\DevExpress.Xpo.$(DevExpressVersion).dll')"
+           Text="DevExpress.Xpo.$(DevExpressVersion).dll isn't in '$(DevExpressBin)'. Check DevExpressRoot in Directory.Build.props (or set DevExpressBin to the folder that holds the DLLs for $(TargetFramework))." />
+  </Target>
 </Project>
