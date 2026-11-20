@@ -31,7 +31,7 @@ namespace Lyricist.Desktop
             this.lblTemplate = new DevExpress.XtraEditors.LabelControl();
             this.cbTemplate = new DevExpress.XtraEditors.ComboBoxEdit();
             this.lblTemplateInfo = new DevExpress.XtraEditors.LabelControl();
-            this.ceSource = new DevExpress.XtraEditors.CheckEdit();
+            this.ceNotes = new DevExpress.XtraEditors.CheckEdit();
             this.ceThemes = new DevExpress.XtraEditors.CheckEdit();
             this.lblScheme = new DevExpress.XtraEditors.LabelControl();
             this.teScheme = new DevExpress.XtraEditors.TextEdit();
@@ -42,7 +42,7 @@ namespace Lyricist.Desktop
             this.sbCopy = new DevExpress.XtraEditors.SimpleButton();
             this.sbClose = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)(this.cbTemplate.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ceSource.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ceNotes.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ceThemes.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.teScheme.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.seSyllables.Properties)).BeginInit();
@@ -72,17 +72,17 @@ namespace Lyricist.Desktop
             this.lblTemplateInfo.TabIndex = 2;
             this.lblTemplateInfo.Text = "";
             // 
-            // ceSource
+            // ceNotes
             // 
-            this.ceSource.Location = new System.Drawing.Point(80, 42);
-            this.ceSource.Name = "ceSource";
-            this.ceSource.Size = new System.Drawing.Size(160, 20);
-            this.ceSource.TabIndex = 3;
-            this.ceSource.Properties.Caption = "Include source info";
+            this.ceNotes.Location = new System.Drawing.Point(80, 42);
+            this.ceNotes.Name = "ceNotes";
+            this.ceNotes.Size = new System.Drawing.Size(250, 20);
+            this.ceNotes.TabIndex = 3;
+            this.ceNotes.Properties.Caption = "Include my notes (Additional Info)";
             // 
             // ceThemes
             // 
-            this.ceThemes.Location = new System.Drawing.Point(246, 42);
+            this.ceThemes.Location = new System.Drawing.Point(80, 64);
             this.ceThemes.Name = "ceThemes";
             this.ceThemes.Size = new System.Drawing.Size(140, 20);
             this.ceThemes.TabIndex = 4;
@@ -122,9 +122,9 @@ namespace Lyricist.Desktop
             // mePrompt
             // 
             this.mePrompt.Anchor = (System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right);
-            this.mePrompt.Location = new System.Drawing.Point(12, 72);
+            this.mePrompt.Location = new System.Drawing.Point(12, 92);
             this.mePrompt.Name = "mePrompt";
-            this.mePrompt.Size = new System.Drawing.Size(796, 520);
+            this.mePrompt.Size = new System.Drawing.Size(796, 500);
             this.mePrompt.TabIndex = 9;
             // 
             // lblCount
@@ -169,7 +169,7 @@ namespace Lyricist.Desktop
             this.Controls.Add(this.teScheme);
             this.Controls.Add(this.lblScheme);
             this.Controls.Add(this.ceThemes);
-            this.Controls.Add(this.ceSource);
+            this.Controls.Add(this.ceNotes);
             this.Controls.Add(this.lblTemplateInfo);
             this.Controls.Add(this.cbTemplate);
             this.Controls.Add(this.lblTemplate);
@@ -179,7 +179,7 @@ namespace Lyricist.Desktop
             this.Name = "PromptForm";
             this.Text = "Prompt";
             ((System.ComponentModel.ISupportInitialize)(this.cbTemplate.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ceSource.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ceNotes.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ceThemes.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.teScheme.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.seSyllables.Properties)).EndInit();
@@ -194,7 +194,7 @@ namespace Lyricist.Desktop
         private DevExpress.XtraEditors.LabelControl lblTemplate;
         private DevExpress.XtraEditors.ComboBoxEdit cbTemplate;
         private DevExpress.XtraEditors.LabelControl lblTemplateInfo;
-        private DevExpress.XtraEditors.CheckEdit ceSource;
+        private DevExpress.XtraEditors.CheckEdit ceNotes;
         private DevExpress.XtraEditors.CheckEdit ceThemes;
         private DevExpress.XtraEditors.LabelControl lblScheme;
         private DevExpress.XtraEditors.TextEdit teScheme;

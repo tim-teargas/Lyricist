@@ -19,7 +19,8 @@ namespace Lyricist.Core.Prompts
 
     public sealed class PromptOptions
     {
-        public bool IncludeSource { get; set; } = true;
+        /// <summary>Tim's Additional Info: his thoughts on how an idea could be used.</summary>
+        public bool IncludeNotes { get; set; } = true;
         public bool IncludeThemes { get; set; } = true;
         /// <summary>Tim's own words about how he writes (Settings), put at the top of every prompt.</summary>
         public string AboutMe { get; set; } = "";
@@ -109,6 +110,8 @@ namespace Lyricist.Core.Prompts
             var text = Start (o);
             text.AppendLine ("I want to grow this idea into a song:");
             text.AppendLine();
+            if (o.IncludeNotes && HasNotes (c.Focus))
+                text.AppendLine ("([my notes: ...] are my own thoughts on it and may include further ideas.)");
             Idea (text, c.Focus, o);
             text.AppendLine();
             List<Lyric> others = c.Ideas.Where (l => !ReferenceEquals (l, c.Focus)).ToList();
@@ -131,8 +134,8 @@ namespace Lyricist.Core.Prompts
             text.AppendLine();
             text.AppendLine (Quote (c.Focus.Text));
             text.AppendLine();
-            if (o.IncludeSource && !string.IsNullOrWhiteSpace (c.Focus.SourceInfo))
-                text.AppendLine ($"(Where it came from: {Shorten (c.Focus.SourceInfo, 300)})").AppendLine();
+            if (o.IncludeNotes && !string.IsNullOrWhiteSpace (c.Focus.AdditionalInfo))
+                text.AppendLine ($"(My notes on it, which may include further ideas: {Shorten (c.Focus.AdditionalInfo, 600)})").AppendLine();
             string syllables = o.Syllables > 0 ? $"about {o.Syllables} syllables a line" : "lines about as long as mine";
             text.AppendLine ($"Give me five different ways the next lines could go, using the rhyme scheme {o.RhymeScheme} (my line is the first),");
             text.AppendLine ($"{syllables}. Make them really different from each other: different directions, images and tones,");
@@ -162,7 +165,7 @@ namespace Lyricist.Core.Prompts
             text.AppendLine ($"Here are {c.Ideas.Count} of my lyric ideas{About (c)}, with the themes I've tagged them with.");
             text.AppendLine ($"My themes are: {string.Join (", ", LyricFlags.Themes.Select (f => f.Caption))}.");
             text.AppendLine();
-            Ideas (text, c.Ideas, new PromptOptions { IncludeSource = o.IncludeSource, IncludeThemes = true, AboutMe = o.AboutMe });
+            Ideas (text, c.Ideas, new PromptOptions { IncludeNotes = o.IncludeNotes, IncludeThemes = true, AboutMe = o.AboutMe });
             text.AppendLine ("Please:");
             text.AppendLine ("1. For ideas with no themes (or clearly wrong ones), suggest themes from my list.");
             text.AppendLine ("2. Point out near-duplicates: ideas saying much the same thing (keep the better one?).");
@@ -186,12 +189,17 @@ namespace Lyricist.Core.Prompts
 
         static void Ideas (StringBuilder text, IEnumerable<Lyric> ideas, PromptOptions o)
         {
-            foreach (Lyric lyric in ideas)
+            List<Lyric> list = ideas.ToList();
+            if (o.IncludeNotes && list.Any (HasNotes))
+                text.AppendLine ("(Where an idea has [my notes: ...], those are my own thoughts on it; they may include further ideas for how to use it.)").AppendLine();
+            foreach (Lyric lyric in list)
                 Idea (text, lyric, o);
             text.AppendLine();
         }
 
-        /// <summary>"#123 (Very good; Time, Love; concept): text  [source: ...]"</summary>
+        static bool HasNotes (Lyric lyric) => !string.IsNullOrWhiteSpace (lyric.AdditionalInfo);
+
+        /// <summary>"#123 (Very good; Time, Love; concept): text  [my notes: ...]"</summary>
         static void Idea (StringBuilder text, Lyric lyric, PromptOptions o)
         {
             var notes = new List<string>();
@@ -211,8 +219,8 @@ namespace Lyricist.Core.Prompts
             if (notes.Count > 0)
                 text.Append ($" ({string.Join ("; ", notes)})");
             text.Append (": ").Append (Quote (lyric.Text));
-            if (o.IncludeSource && !string.IsNullOrWhiteSpace (lyric.SourceInfo))
-                text.Append ($"   [source: {Shorten (lyric.SourceInfo, 200)}]");
+            if (o.IncludeNotes && HasNotes (lyric))
+                text.Append ($"   [my notes: {Shorten (lyric.AdditionalInfo, 400)}]");
             text.AppendLine();
         }
 

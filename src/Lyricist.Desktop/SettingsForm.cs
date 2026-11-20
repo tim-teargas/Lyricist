@@ -18,6 +18,7 @@ namespace Lyricist.Desktop
         {
             InitializeComponent();
             this.settings = settings;
+            WindowMemory.Remember (this, "Settings");
         }
 
         protected override void OnLoad (EventArgs e)

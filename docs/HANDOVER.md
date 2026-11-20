@@ -125,6 +125,13 @@ lyrics and vocals for DumbAngel, repo tim-teargas/DumbAngel).
     ideas), then build that into a prompt: song drafts = one free-text box (optional [Verse] etc.
     headers), ideas pulled in, syllables + rhyme letters beside each line, Prompt. Still to decide:
     new tables via a SQL script Tim runs, or Lyricist creating only its new tables.
+- **0.4.1**: prompts leave out Source Info (Tim) and optionally include **Additional Info** as
+  "[my notes: ...]" (Tim's thoughts on how an idea could be used; the prompt says they may hold
+  further ideas); option "Include my notes" (Preference PromptIncludeNotes). `WindowMemory`
+  (`%APPDATA%\Lyricist\layout.xml`): every window's position / size (Main, LyricEdit with a
+  cascade for further ones, Words, Workbench, Prompt, Settings: position only) and the Workbench
+  grids' column widths (kept across refreshes and sessions; best-fit only when none remembered).
+  The main list keeps its grid-layout.xml.
 
 ## Plan (agreed 20 Nov)
 

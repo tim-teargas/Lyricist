@@ -31,14 +31,12 @@ namespace Lyricist.Core
         // Prompts
         /// <summary>Tim's own words about himself and how he writes: the top of every prompt.</summary>
         public string PromptAboutMe { get; set; } = "";
-        public bool PromptIncludeSource { get; set; } = true;
+        public bool PromptIncludeNotes { get; set; } = true;
         public bool PromptIncludeThemes { get; set; } = true;
 
         // Words window
         public string Accent { get; set; } = "UK";   // "UK" / "US"
         public bool IncludeRareWords { get; set; }
-        /// <summary>"left,top,width,height"; empty = beside the main window.</summary>
-        public string WordsWindowBounds { get; set; } = "";
 
         // ---------------------------------------------------------------------------------
 

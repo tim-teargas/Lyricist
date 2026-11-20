@@ -64,10 +64,18 @@ namespace Lyricist.Desktop
         protected override void OnLoad (EventArgs e)
         {
             base.OnLoad (e);
-            if (Owner != null)
+            if (!WindowMemory.Restore (this, "Workbench") && Owner != null)
                 Location = new Point (Math.Max (0, Owner.Left + 40), Math.Max (0, Owner.Top + 40));
             LayOutShuffle();
             RefreshCurrent();
+        }
+
+        protected override void OnFormClosing (FormClosingEventArgs e)
+        {
+            WindowMemory.Store (this, "Workbench");
+            foreach (GridView view in new[] { gvPairs, gvReview, gvWords, gvRelated })
+                WindowMemory.StoreColumns (view, "Workbench." + view.Name);
+            base.OnFormClosing (e);
         }
 
         // Coming back to the window (after opening / editing ideas): the review queue has moved on.
@@ -424,9 +432,14 @@ namespace Lyricist.Desktop
 
         // ---------------------------------------------------------------------------------
 
-        /// <summary>Columns come from the row class; this tidies them once they exist.</summary>
+        /// <summary>
+        /// Columns come from the row class; this tidies them once they exist. Widths you've set are
+        /// kept (between refreshes and sessions); otherwise they're fitted to the first rows.
+        /// </summary>
         static void ConfigureColumns (GridView view)
         {
+            string key = "Workbench." + view.Name;
+            WindowMemory.StoreColumns (view, key);   // the widths as you left them, before rebuilding
             view.PopulateColumns();
             foreach (DevExpress.XtraGrid.Columns.GridColumn column in view.Columns)
             {
@@ -436,8 +449,11 @@ namespace Lyricist.Desktop
                     column.DisplayFormat.FormatString = "yyyy-MM-dd HH:mm";
                 }
             }
-            view.BestFitMaxRowCount = 100;   // measuring every row of a big list is slow
-            view.BestFitColumns();
+            if (!WindowMemory.RestoreColumns (view, key))
+            {
+                view.BestFitMaxRowCount = 100;   // measuring every row of a big list is slow
+                view.BestFitColumns();
+            }
         }
 
         public sealed class FamilyRow

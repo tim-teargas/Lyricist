@@ -51,15 +51,14 @@ namespace Lyricist.Desktop
         protected override void OnLoad (EventArgs e)
         {
             base.OnLoad (e);
-            RestoreBounds();
+            if (!WindowMemory.Restore (this, "Words") && Owner != null)
+                Location = new Point (Math.Max (0, Owner.Right - Width - 20), Owner.Top + 60);
             LayOutRhymeColumns();
         }
 
         protected override void OnFormClosing (FormClosingEventArgs e)
         {
-            settings.WordsWindowBounds = WindowState == FormWindowState.Normal
-                ? $"{Left},{Top},{Width},{Height}" : settings.WordsWindowBounds;
-            SaveSettings();
+            WindowMemory.Store (this, "Words");
             base.OnFormClosing (e);
         }
 
@@ -276,22 +275,6 @@ namespace Lyricist.Desktop
                 labels[i].Location = new Point (x, 6);
                 lists[i].SetBounds (x, top, width, height);
             }
-        }
-
-        void RestoreBounds()
-        {
-            string[] parts = (settings.WordsWindowBounds ?? "").Split (',');
-            if (parts.Length == 4 && parts.All (p => int.TryParse (p, out _)))
-            {
-                var bounds = new Rectangle (int.Parse (parts[0]), int.Parse (parts[1]), int.Parse (parts[2]), int.Parse (parts[3]));
-                if (Screen.AllScreens.Any (s => s.WorkingArea.IntersectsWith (bounds)))
-                {
-                    Bounds = bounds;
-                    return;
-                }
-            }
-            if (Owner != null)
-                Location = new Point (Math.Max (0, Owner.Right - Width - 20), Owner.Top + 60);
         }
 
         void SaveSettings()

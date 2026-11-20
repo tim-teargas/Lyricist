@@ -41,6 +41,7 @@ namespace Lyricist.Desktop
         {
             InitializeComponent();
             this.settings = settings;
+            WindowMemory.Remember (this, "Main");
         }
 
         protected override void OnLoad (EventArgs e)
@@ -193,10 +194,13 @@ namespace Lyricist.Desktop
                     else
                         gridView1.RefreshData();
                 };
+                // Where the last one was (remembered between sessions), each further one a step down.
+                int others = Application.OpenForms.OfType<LyricEditForm>().Count();
                 form.StartPosition = FormStartPosition.Manual;
                 form.Location = new System.Drawing.Point (
-                    Math.Max (0, Left + (Width - form.Width) / 2 + 30 * openForms.Count),
-                    Math.Max (0, Top + (Height - form.Height) / 2 + 30 * openForms.Count));
+                    Math.Max (0, Left + (Width - form.Width) / 2 + 30 * others),
+                    Math.Max (0, Top + (Height - form.Height) / 2 + 30 * others));
+                WindowMemory.Remember (form, "LyricEdit", new System.Drawing.Point (30 * others, 30 * others));
                 form.Show (this);
             }
             catch (Exception ex)

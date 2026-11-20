@@ -24,6 +24,7 @@ namespace Lyricist.Desktop
             InitializeComponent();
             this.settings = settings;
             this.context = context;
+            WindowMemory.Remember (this, "Prompt");
 
             foreach (PromptTemplate template in PromptBuilder.Templates.Where (t => t.Applies (context)))
                 cbTemplate.Properties.Items.Add (template);
@@ -31,12 +32,12 @@ namespace Lyricist.Desktop
                                           .FirstOrDefault (t => t.Name == preferredTemplate)
                                       ?? (cbTemplate.Properties.Items.Count > 0 ? cbTemplate.Properties.Items[0] : null);
 
-            ceSource.Checked = settings.PromptIncludeSource;
+            ceNotes.Checked = settings.PromptIncludeNotes;
             ceThemes.Checked = settings.PromptIncludeThemes;
             teScheme.Text = "AABB";
 
             cbTemplate.SelectedIndexChanged += (s, e) => Build();
-            ceSource.CheckedChanged += (s, e) => { settings.PromptIncludeSource = ceSource.Checked; Save(); Build(); };
+            ceNotes.CheckedChanged += (s, e) => { settings.PromptIncludeNotes = ceNotes.Checked; Save(); Build(); };
             ceThemes.CheckedChanged += (s, e) => { settings.PromptIncludeThemes = ceThemes.Checked; Save(); Build(); };
             teScheme.EditValueChanged += (s, e) => Build();
             seSyllables.EditValueChanged += (s, e) => Build();
@@ -69,7 +70,7 @@ namespace Lyricist.Desktop
 
             var options = new PromptOptions
             {
-                IncludeSource = ceSource.Checked,
+                IncludeNotes = ceNotes.Checked,
                 IncludeThemes = ceThemes.Checked,
                 AboutMe = settings.PromptAboutMe,
                 RhymeScheme = string.IsNullOrWhiteSpace (teScheme.Text) ? "AABB" : teScheme.Text.Trim().ToUpperInvariant(),
